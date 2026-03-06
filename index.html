@@ -2,9 +2,22 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Escala de Mídia — Minha Igreja</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✝</text></svg>">
+
+<!-- PWA -->
+<meta name="theme-color" content="#08090d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Escala Mídia">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="Gerenciamento de escala da equipe de mídia da igreja">
+<link rel="manifest" id="pwa-manifest">
+
+<!-- Icons inline SVG como data URI -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2308090d'/><text y='.9em' font-size='80' x='10'>✝</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%2308090d'/><rect width='512' height='512' rx='80' fill='url(%23g)'/><defs><radialGradient id='g' cx='30%25' cy='20%25'><stop offset='0' stop-color='%23d4a843' stop-opacity='.3'/><stop offset='1' stop-color='transparent'/></radialGradient></defs><text y='360' x='90' font-size='320' fill='%23d4a843'>✝</text></svg>">
+
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400;1,600&family=Mulish:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ══════════════════════════════════════════
@@ -618,12 +631,82 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
   .form-row { grid-template-columns: 1fr; }
   .modal { padding: 1.5rem; }
 }
+
+/* ══ PWA INSTALL BANNER ══ */
+#pwa-banner {
+  position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%);
+  z-index: 400; width: calc(100% - 2rem); max-width: 420px;
+  background: var(--s2); border: 1px solid var(--gold-dk);
+  border-radius: 16px; padding: 1rem 1.25rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,.7);
+  animation: pwaIn .4s cubic-bezier(.34,1.56,.64,1);
+  display: flex; align-items: center; gap: 1rem;
+}
+@keyframes pwaIn { from { transform: translateX(-50%) translateY(90px); opacity:0; } }
+#pwa-banner.hidden { display: none !important; }
+.pwa-icon { width:52px; height:52px; border-radius:14px; background:var(--gold-gl2); border:1px solid var(--gold-dk); display:flex; align-items:center; justify-content:center; font-size:1.65rem; flex-shrink:0; }
+.pwa-text { flex:1; min-width:0; }
+.pwa-text strong { display:block; font-size:.88rem; font-weight:700; margin-bottom:.15rem; }
+.pwa-text span { font-size:.73rem; color:var(--text2); }
+.pwa-btns { display:flex; flex-direction:column; gap:.35rem; align-items:flex-end; }
+.pwa-install { background:var(--gold); color:var(--bg); border:none; border-radius:8px; padding:.42rem .85rem; font-family:"Mulish",sans-serif; font-size:.78rem; font-weight:800; cursor:pointer; white-space:nowrap; transition:all .18s; }
+.pwa-install:hover { background:var(--gold-lt); }
+.pwa-dismiss { background:none; border:none; color:var(--text3); font-size:.7rem; cursor:pointer; font-family:"Mulish",sans-serif; }
+#ios-modal { display:none; position:fixed; inset:0; z-index:500; background:rgba(0,0,0,.75); backdrop-filter:blur(8px); align-items:flex-end; justify-content:center; padding:1rem; }
+#ios-modal.open { display:flex; }
+.ios-card { background:var(--s1); border:1px solid var(--border2); border-radius:20px 20px 16px 16px; padding:1.75rem; width:100%; max-width:420px; animation:pwaIn .3s ease; }
+.ios-card h3 { font-family:"Cormorant Garamond",serif; font-size:1.3rem; font-weight:700; margin-bottom:1.2rem; }
+.ios-card h3 em { color:var(--gold); font-style:italic; }
+.ios-steps { display:flex; flex-direction:column; gap:.9rem; margin-bottom:1.4rem; }
+.ios-step { display:flex; align-items:flex-start; gap:.8rem; }
+.ios-num { width:26px; height:26px; border-radius:50%; flex-shrink:0; background:var(--gold-gl2); border:1px solid var(--gold-dk); display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:800; color:var(--gold); margin-top:.1rem; }
+.ios-step p { font-size:.82rem; color:var(--text2); line-height:1.55; }
+.ios-step p strong { color:var(--text); }
+@supports (padding: max(0px)) {
+  header { padding-top:max(0px,env(safe-area-inset-top)); height:calc(62px + max(0px,env(safe-area-inset-top))); }
+  .sidebar { top:calc(62px + max(0px,env(safe-area-inset-top))); height:calc(100vh - 62px - max(0px,env(safe-area-inset-top))); }
+}
 </style>
 </head>
 <body>
 
 <div id="ambient"></div>
 <div id="toast-container"></div>
+
+<!-- ══ PWA INSTALL BANNER ══ -->
+<div id="pwa-banner" class="hidden">
+  <div class="pwa-icon">✝</div>
+  <div class="pwa-text">
+    <strong>Instalar no celular</strong>
+    <span>Acesse a escala como app, sem navegador</span>
+  </div>
+  <div class="pwa-btns">
+    <button class="pwa-install" onclick="pwaTriggerInstall()">Instalar</button>
+    <button class="pwa-dismiss" onclick="pwaDismiss()">Agora não</button>
+  </div>
+</div>
+
+<!-- ══ iOS INSTRUCTIONS MODAL ══ -->
+<div id="ios-modal">
+  <div class="ios-card">
+    <h3>Instalar no <em>iPhone</em></h3>
+    <div class="ios-steps">
+      <div class="ios-step">
+        <div class="ios-num">1</div>
+        <p>Toque no botão <strong>Compartilhar</strong> <strong>⬆️</strong> na barra inferior do Safari</p>
+      </div>
+      <div class="ios-step">
+        <div class="ios-num">2</div>
+        <p>Role para baixo e toque em <strong>"Adicionar à Tela de Início"</strong></p>
+      </div>
+      <div class="ios-step">
+        <div class="ios-num">3</div>
+        <p>Toque em <strong>"Adicionar"</strong> no canto superior direito — pronto! 🎉</p>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="document.getElementById('ios-modal').classList.remove('open')">Entendi!</button>
+  </div>
+</div>
 
 <!-- ══ HEADER ══ -->
 <header>
@@ -1627,6 +1710,125 @@ document.title=`Escala de Mídia — ${state.churchName}`;
 renderCalendar();
 updateBadge();
 updateStats();
+
+// ════════════════════════════════════════════
+// PWA — MANIFEST (inline, sem arquivo externo)
+// ════════════════════════════════════════════
+(function(){
+  const manifest = {
+    name: `Escala de Mídia — ${state.churchName}`,
+    short_name: 'Escala Mídia',
+    description: 'Gerenciamento de escala da equipe de mídia da igreja',
+    start_url: './',
+    display: 'standalone',
+    background_color: '#08090d',
+    theme_color: '#08090d',
+    orientation: 'portrait-primary',
+    icons: [
+      {
+        src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%2308090d'/><text y='400' x='80' font-size='340' fill='%23d4a843'>✝</text></svg>",
+        sizes: '512x512',
+        type: 'image/svg+xml',
+        purpose: 'any maskable'
+      }
+    ],
+    categories: ['productivity','utilities'],
+    lang: 'pt-BR'
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+  const url  = URL.createObjectURL(blob);
+  document.getElementById('pwa-manifest').setAttribute('href', url);
+})();
+
+// ════════════════════════════════════════════
+// PWA — SERVICE WORKER (inline via Blob)
+// ════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  const swCode = `
+const CACHE = 'escala-midia-v1';
+const ASSETS = ['./', './index.html'];
+
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys =>
+    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+  ).then(() => self.clients.claim()));
+});
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      const net = fetch(e.request).then(res => {
+        if (res && res.status === 200) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => cached);
+      return cached || net;
+    })
+  );
+});
+  `;
+  const swBlob = new Blob([swCode], {type:'application/javascript'});
+  const swUrl  = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swUrl, {scope: './'})
+    .then(() => console.log('SW registrado ✓'))
+    .catch(e => console.warn('SW:', e));
+}
+
+// ════════════════════════════════════════════
+// PWA — INSTALL PROMPT
+// ════════════════════════════════════════════
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // show banner after 3s
+  setTimeout(() => {
+    if (!localStorage.getItem('pwa_dismissed')) {
+      document.getElementById('pwa-banner').classList.remove('hidden');
+    }
+  }, 3000);
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('pwa-banner').classList.add('hidden');
+  toast('App instalado com sucesso! 🎉');
+  deferredPrompt = null;
+});
+
+function pwaTriggerInstall() {
+  document.getElementById('pwa-banner').classList.add('hidden');
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(r => {
+      if (r.outcome === 'accepted') toast('Instalando o app... 🎉');
+      deferredPrompt = null;
+    });
+  }
+}
+
+function pwaDismiss() {
+  document.getElementById('pwa-banner').classList.add('hidden');
+  localStorage.setItem('pwa_dismissed', '1');
+}
+
+// Detectar iOS para mostrar instruções manuais
+(function detectIOS() {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  const isInStandalone = window.navigator.standalone;
+  if (isIOS && !isInStandalone) {
+    setTimeout(() => {
+      if (!localStorage.getItem('pwa_dismissed')) {
+        document.getElementById('ios-modal').classList.add('open');
+      }
+    }, 4000);
+  }
+})();
 </script>
 </body>
 </html>
