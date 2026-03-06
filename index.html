@@ -46,6 +46,9 @@
   --noite-bg:  rgba(167,139,250,.12);
   --noite-bd:  rgba(167,139,250,.35);
   --noite-tx:  #a78bfa;
+  --esp-bg:    rgba(251,113,133,.12);
+  --esp-bd:    rgba(251,113,133,.35);
+  --esp-tx:    #fb7185;
 
   --radius:  12px;
   --radius-sm: 8px;
@@ -286,6 +289,7 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
 .cl-dom { background: var(--dom-bg); border-color: var(--dom-bd); color: var(--dom-tx); }
 .cl-ter { background: var(--ter-bg); border-color: var(--ter-bd); color: var(--ter-tx); }
 .cl-noite { background: var(--noite-bg); border-color: var(--noite-bd); color: var(--noite-tx); }
+.cl-esp { background: var(--esp-bg); border-color: var(--esp-bd); color: var(--esp-tx); }
 
 .wd-row {
   display: grid; grid-template-columns: repeat(7,1fr);
@@ -344,6 +348,7 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
 .ev-chip.dom { background: var(--dom-bg); border-color: var(--dom-bd); color: var(--dom-tx); }
 .ev-chip.ter { background: var(--ter-bg); border-color: var(--ter-bd); color: var(--ter-tx); }
 .ev-chip.noite { background: var(--noite-bg); border-color: var(--noite-bd); color: var(--noite-tx); }
+.ev-chip.esp { background: var(--esp-bg); border-color: var(--esp-bd); color: var(--esp-tx); }
 .ev-chip .missing-dot {
   width: 5px; height: 5px; border-radius: 50%;
   background: var(--live); flex-shrink: 0; margin-left: auto;
@@ -382,6 +387,7 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
 .ev-type-tag.dom { background: var(--dom-bg); border-color: var(--dom-bd); color: var(--dom-tx); }
 .ev-type-tag.ter { background: var(--ter-bg); border-color: var(--ter-bd); color: var(--ter-tx); }
 .ev-type-tag.noite { background: var(--noite-bg); border-color: var(--noite-bd); color: var(--noite-tx); }
+.ev-type-tag.esp { background: var(--esp-bg); border-color: var(--esp-bd); color: var(--esp-tx); }
 
 .roles-row { display: flex; flex-wrap: wrap; gap: .35rem; }
 .rc {
@@ -703,6 +709,7 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
             <div class="cl-chip cl-dom">☀️ Domingo Manhã</div>
             <div class="cl-chip cl-noite">🌃 Domingo Noite</div>
             <div class="cl-chip cl-ter">🌙 Terça</div>
+            <div class="cl-chip cl-esp">🎉 Especial</div>
           </div>
           <div style="display:flex;gap:.4rem;align-items:center">
             <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
@@ -733,6 +740,7 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
         <button class="tab-btn" onclick="setEvFilter('domingo',this)">☀️ Dom. Manhã</button>
         <button class="tab-btn" onclick="setEvFilter('noite',this)">🌃 Dom. Noite</button>
         <button class="tab-btn" onclick="setEvFilter('terca',this)">🌙 Terças</button>
+        <button class="tab-btn" onclick="setEvFilter('especial',this)">🎉 Especiais</button>
         <button class="tab-btn" onclick="setEvFilter('pending',this)">⚠️ Em aberto</button>
       </div>
       <div class="ev-list" id="ev-list"></div>
@@ -843,7 +851,13 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
         <option value="domingo">☀️ Culto de Domingo (Manhã)</option>
         <option value="noite">🌃 Culto de Domingo (Noite)</option>
         <option value="terca">🌙 Culto de Terça</option>
+        <option value="especial">🎉 Evento Especial</option>
       </select>
+    </div>
+    <!-- extra field shown only for eventos especiais -->
+    <div class="field" id="nev-especial-extra" style="display:none">
+      <label>Descrição do evento especial</label>
+      <input type="text" id="nev-especial-desc" placeholder="ex: Congresso de Jovens, Retiro, Conferência...">
     </div>
     <div class="field">
       <label>Funções necessárias</label>
@@ -1132,8 +1146,8 @@ function renderCalendar() {
 
         const chipsHTML=dayEvs.map(ev=>{
         const missing=ev.roles.filter(r=>!ev.assigned[r]).length;
-        const chipCls = ev.type==='domingo'?'dom': ev.type==='noite'?'noite':'ter';
-        const chipIcon = ev.type==='domingo'?'☀️': ev.type==='noite'?'🌃':'🌙';
+        const chipCls = ev.type==='domingo'?'dom': ev.type==='noite'?'noite': ev.type==='especial'?'esp':'ter';
+        const chipIcon = ev.type==='domingo'?'☀️': ev.type==='noite'?'🌃': ev.type==='especial'?'🎉':'🌙';
         return `<div class="ev-chip ${chipCls}" onclick="openAssign(${ev.id})">
           ${chipIcon}
           <span class="chip-label">${ev.name}</span>
@@ -1159,6 +1173,7 @@ function renderEvents() {
   if (evFilter==='domingo') list=list.filter(e=>e.type==='domingo');
   else if (evFilter==='noite') list=list.filter(e=>e.type==='noite');
   else if (evFilter==='terca') list=list.filter(e=>e.type==='terca');
+  else if (evFilter==='especial') list=list.filter(e=>e.type==='especial');
   else if (evFilter==='pending') list=list.filter(e=>e.roles.some(r=>!e.assigned[r]));
   list.sort((a,b)=>a.date.localeCompare(b.date));
 
@@ -1171,8 +1186,9 @@ function renderEvents() {
     const dt=new Date(ev.date+'T12:00');
     const isDom=ev.type==='domingo';
     const isNoite=ev.type==='noite';
-    const typeCls=isDom?'dom':isNoite?'noite':'ter';
-    const typeLabel=isDom?'☀️ Dom. Manhã':isNoite?'🌃 Dom. Noite':'🌙 Terça';
+    const isEsp=ev.type==='especial';
+    const typeCls=isDom?'dom':isNoite?'noite':isEsp?'esp':'ter';
+    const typeLabel=isDom?'☀️ Dom. Manhã':isNoite?'🌃 Dom. Noite':isEsp?'🎉 Evento Especial':'🌙 Terça';
     const rolesHTML=ev.roles.map(r=>{
       const vol=state.volunteers.find(v=>ev.assigned[r]===v.id);
       const m=ROLE_META[r]||{};
@@ -1371,6 +1387,8 @@ function openNewEvent(){
   document.getElementById('nev-date').value='';
   document.getElementById('nev-type').value='domingo';
   document.getElementById('nev-notes').value='';
+  document.getElementById('nev-especial-extra').style.display='none';
+  document.getElementById('nev-especial-desc').value='';
   setRolePicker('nev-roles', state.defaultRolesDom);
   document.getElementById('nev-time').value=state.defaultTimeDom;
   document.getElementById('modal-event').classList.add('open');
@@ -1391,34 +1409,50 @@ function openNewEventDate(date){
 
 function autoFillEventRoles(){
   const t=document.getElementById('nev-type').value;
+  const extra=document.getElementById('nev-especial-extra');
   if(t==='domingo'){
     setRolePicker('nev-roles',state.defaultRolesDom);
     document.getElementById('nev-time').value=state.defaultTimeDom;
     document.getElementById('nev-name').value='Culto de Domingo';
+    extra.style.display='none';
   } else if(t==='noite'){
     setRolePicker('nev-roles',state.defaultRolesNoite);
     document.getElementById('nev-time').value=state.defaultTimeNoite;
     document.getElementById('nev-name').value='Culto de Domingo à Noite';
-  } else {
+    extra.style.display='none';
+  } else if(t==='terca'){
     setRolePicker('nev-roles',state.defaultRolesTer);
     document.getElementById('nev-time').value=state.defaultTimeTer;
     document.getElementById('nev-name').value='Culto de Terça';
+    extra.style.display='none';
+  } else {
+    // especial — limpa campos para o usuário preencher livremente
+    clearRolePicker('nev-roles');
+    document.getElementById('nev-time').value='';
+    document.getElementById('nev-name').value='';
+    extra.style.display='block';
+    document.getElementById('nev-especial-desc').focus();
   }
 }
 
 function saveEvent(){
-  const name=document.getElementById('nev-name').value.trim();
+  const type=document.getElementById('nev-type').value;
+  let name=document.getElementById('nev-name').value.trim();
+  // Para evento especial, usar descrição como nome se nome estiver vazio
+  if(type==='especial' && !name){
+    name=document.getElementById('nev-especial-desc').value.trim();
+  }
   const date=document.getElementById('nev-date').value;
   const time=document.getElementById('nev-time').value;
-  const type=document.getElementById('nev-type').value;
   const notes=document.getElementById('nev-notes').value.trim();
   if(!name||!date){ toast('Preencha o nome e a data!','warn'); return; }
+  if(type==='especial'&&!time){ toast('Informe o horário do evento!','warn'); return; }
   const roles=getSelectedRoles('nev-roles');
   state.events.push({id:state.nextEId++, name, date, time, type, roles, assigned:{}, notes});
   persist(); closeModal('modal-event');
   renderCalendar(); renderEvents(); updateStats();
   toast(`Evento "${name}" adicionado!`);
-  pushNotif('📅','Novo evento criado',`"${name}" foi adicionado à escala.`);
+  pushNotif(type==='especial'?'🎉':'📅', type==='especial'?'Evento especial criado':'Novo evento criado',`"${name}" foi adicionado à escala.`);
 }
 
 // ── NEW VOLUNTEER ──
@@ -1566,7 +1600,7 @@ function exportSchedule(){
 
   mEvs.forEach(ev=>{
     const dt=new Date(ev.date+'T12:00');
-    const typeLabel=ev.type==='domingo'?'☀️ Dom. Manhã':ev.type==='noite'?'🌃 Dom. Noite':'🌙 Terça';
+    const typeLabel=ev.type==='domingo'?'☀️ Dom. Manhã':ev.type==='noite'?'🌃 Dom. Noite':ev.type==='especial'?'🎉 Especial':'🌙 Terça';
     txt+=`📅 ${ev.name} (${typeLabel})\n`;
     txt+=`   Data: ${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()} — ${ev.time}\n`;
     ev.roles.forEach(r=>{
