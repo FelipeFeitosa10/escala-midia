@@ -666,12 +666,139 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
   header { padding-top:max(0px,env(safe-area-inset-top)); height:calc(62px + max(0px,env(safe-area-inset-top))); }
   .sidebar { top:calc(62px + max(0px,env(safe-area-inset-top))); height:calc(100vh - 62px - max(0px,env(safe-area-inset-top))); }
 }
+/* ══ AUTH — LOGIN SCREEN ══ */
+#login-screen {
+  display: none; position: fixed; inset: 0; z-index: 600;
+  background: var(--bg); overflow-y: auto;
+  align-items: center; justify-content: center;
+  flex-direction: column; padding: 2rem 1rem;
+}
+#login-screen.open { display: flex; }
+.login-card {
+  background: var(--s1); border: 1px solid var(--border2);
+  border-radius: 20px; padding: 2.5rem 2rem;
+  width: 100%; max-width: 400px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.6);
+  animation: pwaIn .35s ease;
+}
+.login-logo { text-align: center; margin-bottom: 1.8rem; }
+.login-logo .lmark {
+  width: 64px; height: 64px; border-radius: 18px;
+  background: var(--gold-gl2); border: 1px solid var(--gold-dk);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 2rem; margin-bottom: .75rem;
+}
+.login-logo h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 700; }
+.login-logo h2 em { color: var(--gold); font-style: italic; }
+.login-logo p { font-size: .78rem; color: var(--text2); margin-top: .2rem; }
+.login-tabs { display: flex; gap: .5rem; margin-bottom: 1.5rem; background: var(--s2); border-radius: 10px; padding: .3rem; }
+.login-tab { flex: 1; background: none; border: none; padding: .5rem; border-radius: 8px; color: var(--text2); font-family: 'Mulish',sans-serif; font-size: .82rem; font-weight: 700; cursor: pointer; transition: all .2s; }
+.login-tab.active { background: var(--s3); color: var(--text); }
+.login-divider { display: flex; align-items: center; gap: .75rem; margin: 1.1rem 0; color: var(--text3); font-size: .72rem; }
+.login-divider::before, .login-divider::after { content:''; flex:1; height:1px; background: var(--border); }
+.btn-google {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: .75rem;
+  background: var(--s2); border: 1px solid var(--border2); border-radius: 10px;
+  padding: .7rem; color: var(--text); font-family: 'Mulish',sans-serif;
+  font-size: .85rem; font-weight: 600; cursor: pointer; transition: all .2s;
+}
+.btn-google:hover { background: var(--s3); border-color: var(--border2); }
+.btn-google svg { width: 18px; height: 18px; flex-shrink: 0; }
+.login-error { background: rgba(248,113,113,.12); border: 1px solid rgba(248,113,113,.3); border-radius: 8px; padding: .6rem .85rem; font-size: .78rem; color: #f87171; margin-bottom: 1rem; display: none; }
+.login-error.show { display: block; }
+.login-footer { text-align: center; margin-top: 1.2rem; font-size: .75rem; color: var(--text3); }
+
+/* ══ USER CHIP in header ══ */
+.user-chip {
+  display: flex; align-items: center; gap: .5rem;
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: 20px; padding: .3rem .7rem .3rem .35rem;
+  cursor: pointer; transition: all .18s; flex-shrink: 0;
+}
+.user-chip:hover { border-color: var(--border2); }
+.user-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--gold-gl2); border: 1px solid var(--gold-dk);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .75rem; font-weight: 800; color: var(--gold); overflow: hidden;
+}
+.user-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.user-name { font-size: .72rem; font-weight: 700; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.user-role-badge { font-size: .6rem; padding: .15rem .4rem; border-radius: 10px; font-weight: 800; }
+.role-admin  { background: rgba(212,168,67,.2); color: var(--gold); }
+.role-lider  { background: rgba(56,189,248,.15); color: #38bdf8; }
+.role-equipe { background: rgba(74,222,128,.12); color: #4ade80; }
+
+/* read-only overlay for equipe role */
+.readonly-notice {
+  display: none; background: rgba(56,189,248,.08); border: 1px solid rgba(56,189,248,.2);
+  border-radius: 10px; padding: .6rem 1rem; font-size: .78rem; color: #38bdf8;
+  margin-bottom: 1rem; text-align: center;
+}
+.readonly-notice.show { display: block; }
 </style>
 </head>
 <body>
 
 <div id="ambient"></div>
 <div id="toast-container"></div>
+
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="lmark">✝</div>
+      <h2>Escala de <em>Mídia</em></h2>
+      <p id="login-church-sub">Minha Igreja</p>
+    </div>
+
+    <div class="login-tabs">
+      <button class="login-tab active" onclick="switchLoginTab('login',this)">Entrar</button>
+      <button class="login-tab" onclick="switchLoginTab('register',this)">Criar conta</button>
+    </div>
+
+    <div id="login-error" class="login-error"></div>
+
+    <!-- Email/senha -->
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="auth-email" placeholder="seu@email.com" autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <input type="password" id="auth-password" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div class="field" id="auth-name-field" style="display:none">
+      <label>Seu nome</label>
+      <input type="text" id="auth-name" placeholder="Como você se chama?">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;margin-top:.5rem" id="auth-submit-btn" onclick="authSubmit()">Entrar</button>
+
+    <div class="login-divider">ou</div>
+
+    <button class="btn-google" onclick="authGoogle()">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Continuar com Google
+    </button>
+
+    <div class="login-footer">Apenas membros autorizados podem editar a escala.<br>Qualquer pessoa com o link pode visualizar.</div>
+  </div>
+</div>
+
+<!-- ══ USER MENU DROPDOWN ══ -->
+<div id="user-menu" style="display:none;position:fixed;top:70px;right:1rem;z-index:300;background:var(--s2);border:1px solid var(--border2);border-radius:14px;padding:.6rem;min-width:200px;box-shadow:0 12px 40px rgba(0,0,0,.5)">
+  <div style="padding:.5rem .75rem .75rem;border-bottom:1px solid var(--border);margin-bottom:.4rem">
+    <div style="font-weight:700;font-size:.85rem" id="umenu-name">—</div>
+    <div style="font-size:.72rem;color:var(--text2)" id="umenu-email">—</div>
+    <div style="margin-top:.35rem" id="umenu-role-badge"></div>
+  </div>
+  <button class="btn btn-ghost" style="width:100%;justify-content:flex-start;font-size:.8rem" onclick="authSignOut()">🚪 Sair</button>
+</div>
 
 <!-- ══ PWA INSTALL BANNER ══ -->
 <div id="pwa-banner" class="hidden">
@@ -722,7 +849,11 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
     <button class="nav-btn" onclick="goView('eventos',this)">🎬 Eventos</button>
     <button class="nav-btn" onclick="goView('equipe',this)">👥 Equipe</button>
     <button class="nav-btn" onclick="goView('avisos',this)">🔔 Avisos <span class="notif-badge" id="notif-badge">0</span></button>
-    <button class="nav-btn" onclick="goView('config',this)">⚙️</button>
+    <button class="nav-btn" onclick="goView('config',this)" id="nav-config">⚙️</button>
+    <div class="user-chip" id="user-chip" onclick="toggleUserMenu()" style="display:none">
+      <div class="user-avatar" id="user-avatar">?</div>
+      <span class="user-name" id="user-disp-name">—</span>
+    </div>
   </nav>
 </header>
 
@@ -799,7 +930,7 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
             <span class="cal-month-label" id="cal-month-label"></span>
             <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
           </div>
-          <button class="btn btn-primary" onclick="openNewEvent()">+ Evento</button>
+          <button class="btn btn-primary edit-only" onclick="openNewEvent()">+ Evento</button>
         </div>
       </div>
       <div class="wd-row">
@@ -815,7 +946,7 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
         <h1>Eventos <em>& Escalas</em></h1>
         <div class="pg-hd-actions">
           <button class="btn btn-ghost" onclick="exportSchedule()">⬇️ Exportar</button>
-          <button class="btn btn-primary" onclick="openNewEvent()">+ Evento</button>
+          <button class="btn btn-primary edit-only" onclick="openNewEvent()">+ Evento</button>
         </div>
       </div>
       <div class="tabs-bar">
@@ -833,7 +964,7 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
     <div class="view" id="view-equipe">
       <div class="pg-hd">
         <h1>Equipe de <em>Mídia</em></h1>
-        <button class="btn btn-primary" onclick="openNewVol()">+ Voluntário</button>
+        <button class="btn btn-primary edit-only" onclick="openNewVol()">+ Voluntário</button>
       </div>
       <div class="search-bar">
         <input class="search-input" type="text" placeholder="🔍  Buscar voluntário..." oninput="filterVols(this.value)" id="vol-search">
@@ -1037,6 +1168,11 @@ import { getFirestore, doc, collection,
          getDoc, getDocs, setDoc, addDoc,
          updateDoc, deleteDoc,
          onSnapshot, serverTimestamp }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getAuth, onAuthStateChanged,
+         signInWithEmailAndPassword,
+         createUserWithEmailAndPassword,
+         signInWithPopup, GoogleAuthProvider,
+         signOut, updateProfile }                 from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBAyWY4dsmyPXO-M35nw7I7uoN8nxSMVYE",
@@ -1047,14 +1183,20 @@ const firebaseConfig = {
   appId: "1:318547591722:web:dbdd7e019d4783eee07953"
 };
 
-const fbApp = initializeApp(firebaseConfig);
-const db    = getFirestore(fbApp);
+const fbApp  = initializeApp(firebaseConfig);
+const db     = getFirestore(fbApp);
+const auth   = getAuth(fbApp);
+const googleProvider = new GoogleAuthProvider();
 
 // Colecções
 const COL_EVENTS   = 'events';
 const COL_VOLS     = 'volunteers';
 const COL_NOTIFS   = 'notifications';
-const DOC_CONFIG   = 'config/app';
+const COL_USERS    = 'users';
+
+// Current user state
+let currentUser = null;   // Firebase user object
+let currentRole = null;   // 'admin' | 'lider' | 'equipe' | null (visitante)
 
 // ════════════════════════════════════════════
 // CONSTANTS & META
@@ -1429,8 +1571,8 @@ function renderEvents() {
         <div class="roles-row">${rolesHTML}</div>
       </div>
       <div class="ev-card-actions">
-        <button class="btn btn-primary btn-sm" onclick="openAssign('${ev.fbId}')">Escalar</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete('event','${ev.fbId}','Remover evento','Deseja remover &quot;${ev.name}&quot;?')">✕</button>
+        <button class="btn btn-primary btn-sm" onclick="openAssign('${ev.fbId}')" class="btn btn-primary btn-sm edit-only">Escalar</button>
+        <button class="btn btn-danger btn-sm edit-only" onclick="confirmDelete('event','${ev.fbId}','Remover evento','Deseja remover &quot;${ev.name}&quot;?')">✕</button>
       </div>
     </div>`;
   }).join('');
@@ -1478,8 +1620,8 @@ function renderVols(search='') {
       <div class="vol-phone">📱 ${v.phone||'—'}</div>
       <div class="vol-footer">
         <button class="btn btn-wa btn-sm" style="flex:1" onclick="sendWA('${v.fbId}')">WhatsApp</button>
-        <button class="btn btn-ghost btn-sm" onclick="openEditVol('${v.fbId}')">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete('vol','${v.fbId}','Remover voluntário','Deseja remover ${v.name.replace(/'/g,"\\'")}?')">✕</button>
+        <button class="btn btn-ghost btn-sm edit-only" onclick="openEditVol('${v.fbId}')">✏️</button>
+        <button class="btn btn-danger btn-sm edit-only" onclick="confirmDelete('vol','${v.fbId}','Remover voluntário','Deseja remover ${v.name.replace(/'/g,"\\'")}?')">✕</button>
       </div>
     </div>`;
   }).join('');
@@ -1634,6 +1776,7 @@ function autoFillEventRoles(){
 }
 
 async function saveEvent(){
+  if (!canEdit()) { showLoginScreen(); return; }
   const type=document.getElementById('nev-type').value;
   let name=document.getElementById('nev-name').value.trim();
   if(type==='especial' && !name) name=document.getElementById('nev-especial-desc').value.trim();
@@ -1672,6 +1815,7 @@ function openEditVol(fbId){
 }
 
 async function saveVol(){
+  if (!canEdit()) { showLoginScreen(); return; }
   const name=document.getElementById('nvol-name').value.trim();
   const phone=document.getElementById('nvol-phone').value.trim();
   const avail=document.getElementById('nvol-avail').value;
@@ -1719,6 +1863,7 @@ function openAssign(fbId){
 }
 
 async function saveAssign(){
+  if (!canEdit()) { showLoginScreen(); return; }
   const ev=state.events.find(e=>e.fbId===assignId);
   if(!ev) return;
   const newAssigned={};
@@ -1800,15 +1945,196 @@ function exportSchedule(){
 }
 
 // ════════════════════════════════════════════
+// AUTH — ROLES & PERMISSIONS
+// ════════════════════════════════════════════
+function canEdit()   { return currentRole === 'admin' || currentRole === 'lider'; }
+function isAdmin()   { return currentRole === 'admin'; }
+
+async function loadUserRole(uid) {
+  try {
+    const snap = await getDoc(doc(db, COL_USERS, uid));
+    if (snap.exists()) return snap.data().role || 'equipe';
+    // First user ever becomes admin
+    const allUsers = await getDocs(collection(db, COL_USERS));
+    if (allUsers.empty) return 'admin';
+    return 'equipe';
+  } catch(e) { return 'equipe'; }
+}
+
+async function saveUserProfile(user, role, displayName) {
+  await setDoc(doc(db, COL_USERS, user.uid), {
+    name:  displayName || user.displayName || user.email,
+    email: user.email,
+    role:  role,
+    photo: user.photoURL || null,
+    createdAt: Date.now(),
+  }, { merge: true });
+}
+
+// ── UI helpers ──
+function applyRoleUI() {
+  const edit = canEdit();
+  // Hide/show edit buttons
+  document.querySelectorAll('.edit-only').forEach(el => el.style.display = edit ? '' : 'none');
+  // Config tab only for admin
+  const cfgBtn = document.getElementById('nav-config');
+  if (cfgBtn) cfgBtn.style.display = isAdmin() ? '' : 'none';
+  // Read-only notices
+  document.querySelectorAll('.readonly-notice').forEach(el => el.classList.toggle('show', !edit));
+}
+
+function updateUserChip(user, role) {
+  const chip = document.getElementById('user-chip');
+  const avatar = document.getElementById('user-avatar');
+  const nameEl = document.getElementById('user-disp-name');
+  if (!user) { chip.style.display = 'none'; return; }
+  chip.style.display = 'flex';
+  const name = user.displayName || user.email.split('@')[0];
+  nameEl.textContent = name;
+  if (user.photoURL) {
+    avatar.innerHTML = `<img src="${user.photoURL}" alt="">`;
+  } else {
+    avatar.textContent = name[0].toUpperCase();
+  }
+  // user menu
+  document.getElementById('umenu-name').textContent = name;
+  document.getElementById('umenu-email').textContent = user.email;
+  const roleLabels = { admin:'👑 Admin', lider:'⭐ Líder', equipe:'👤 Equipe' };
+  const roleCls    = { admin:'role-admin', lider:'role-lider', equipe:'role-equipe' };
+  document.getElementById('umenu-role-badge').innerHTML =
+    `<span class="user-role-badge ${roleCls[role]||'role-equipe'}">${roleLabels[role]||'Equipe'}</span>`;
+}
+
+function showLoginScreen() {
+  document.getElementById('login-screen').classList.add('open');
+  document.getElementById('login-church-sub').textContent = state.churchName || 'Minha Igreja';
+}
+function hideLoginScreen() {
+  document.getElementById('login-screen').classList.remove('open');
+}
+
+// ── Login tab switch ──
+let loginMode = 'login';
+function switchLoginTab(mode, btn) {
+  loginMode = mode;
+  document.querySelectorAll('.login-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('auth-name-field').style.display = mode === 'register' ? 'block' : 'none';
+  document.getElementById('auth-submit-btn').textContent = mode === 'register' ? 'Criar conta' : 'Entrar';
+  document.getElementById('auth-password').setAttribute('autocomplete', mode === 'register' ? 'new-password' : 'current-password');
+  clearLoginError();
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg; el.classList.add('show');
+}
+function clearLoginError() {
+  document.getElementById('login-error').classList.remove('show');
+}
+
+// ── Email/senha submit ──
+async function authSubmit() {
+  clearLoginError();
+  const email    = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const name     = document.getElementById('auth-name').value.trim();
+  if (!email || !password) { showLoginError('Preencha email e senha.'); return; }
+  const btn = document.getElementById('auth-submit-btn');
+  btn.textContent = '...'; btn.disabled = true;
+  try {
+    if (loginMode === 'register') {
+      if (!name) { showLoginError('Informe seu nome.'); btn.textContent='Criar conta'; btn.disabled=false; return; }
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(cred.user, { displayName: name });
+      const role = (await getDocs(collection(db, COL_USERS))).empty ? 'admin' : 'equipe';
+      await saveUserProfile(cred.user, role, name);
+    } else {
+      await signInWithEmailAndPassword(auth, email, password);
+    }
+  } catch(e) {
+    const msgs = {
+      'auth/user-not-found':       'Usuário não encontrado.',
+      'auth/wrong-password':       'Senha incorreta.',
+      'auth/email-already-in-use': 'Este email já está em uso.',
+      'auth/weak-password':        'Senha fraca (mínimo 6 caracteres).',
+      'auth/invalid-email':        'Email inválido.',
+      'auth/invalid-credential':   'Email ou senha incorretos.',
+    };
+    showLoginError(msgs[e.code] || 'Erro: ' + e.message);
+    btn.textContent = loginMode === 'register' ? 'Criar conta' : 'Entrar';
+    btn.disabled = false;
+  }
+}
+
+// ── Google login ──
+async function authGoogle() {
+  clearLoginError();
+  try {
+    const cred = await signInWithPopup(auth, googleProvider);
+    const role = (await getDocs(collection(db, COL_USERS))).empty ? 'admin' : 'equipe';
+    await saveUserProfile(cred.user, role, cred.user.displayName);
+  } catch(e) {
+    if (e.code !== 'auth/popup-closed-by-user') showLoginError('Erro ao entrar com Google.');
+  }
+}
+
+// ── Sign out ──
+async function authSignOut() {
+  toggleUserMenu();
+  await signOut(auth);
+  toast('Até logo! 👋');
+}
+
+// ── User menu toggle ──
+function toggleUserMenu() {
+  const m = document.getElementById('user-menu');
+  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+}
+document.addEventListener('click', e => {
+  const menu = document.getElementById('user-menu');
+  const chip = document.getElementById('user-chip');
+  if (menu && chip && !menu.contains(e.target) && !chip.contains(e.target)) {
+    menu.style.display = 'none';
+  }
+});
+
+// ── Auth state listener ──
+function initAuth() {
+  onAuthStateChanged(auth, async user => {
+    if (user) {
+      currentUser = user;
+      currentRole = await loadUserRole(user.uid);
+      // Ensure user doc exists
+      const snap = await getDoc(doc(db, COL_USERS, user.uid));
+      if (!snap.exists()) await saveUserProfile(user, currentRole, user.displayName);
+      hideLoginScreen();
+      updateUserChip(user, currentRole);
+      applyRoleUI();
+      toast(`Olá, ${user.displayName || user.email.split('@')[0]}! 👋`);
+    } else {
+      currentUser = null;
+      currentRole = null;
+      updateUserChip(null, null);
+      applyRoleUI();
+      // Show login only if user actively clicks something that needs auth
+      // (app is viewable without login)
+    }
+  });
+}
+
+// ════════════════════════════════════════════
 // INIT — Firebase
 // ════════════════════════════════════════════
 (async () => {
   showLoading('Conectando ao Firebase...');
   await loadConfig_fb();
   document.getElementById('church-name-display').textContent = state.churchName;
+  document.getElementById('login-church-sub').textContent = state.churchName;
   document.title = `Escala de Mídia — ${state.churchName}`;
   await maybeSeedDemo();
   startListeners();
+  initAuth();
   hideLoading();
   renderCalendar();
   updateBadge();
@@ -1829,6 +2155,9 @@ Object.assign(window, {
   confirmDelete, sendWA,
   loadConfig, saveConfig, exportSchedule,
   toggleRP, pwaTriggerInstall, pwaDismiss,
+  // Auth
+  switchLoginTab, authSubmit, authGoogle, authSignOut, toggleUserMenu,
+  showLoginScreen, hideLoginScreen,
 });
 
 
