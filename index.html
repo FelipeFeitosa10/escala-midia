@@ -1808,12 +1808,29 @@ function exportSchedule(){
   document.getElementById('church-name-display').textContent = state.churchName;
   document.title = `Escala de Mídia — ${state.churchName}`;
   await maybeSeedDemo();
-  startListeners();     // real-time listeners update state & UI automatically
+  startListeners();
   hideLoading();
   renderCalendar();
   updateBadge();
   updateStats();
 })();
+
+// ════════════════════════════════════════════
+// EXPOSE FUNCTIONS TO GLOBAL SCOPE
+// (required because script is type="module")
+// ════════════════════════════════════════════
+Object.assign(window, {
+  goView, changeMonth,
+  openNewEvent, openNewEventDate, saveEvent, autoFillEventRoles, closeModal,
+  openNewVol, openEditVol, saveVol,
+  openAssign, saveAssign,
+  setEvFilter, filterVols,
+  markRead, markAllRead,
+  confirmDelete, sendWA,
+  loadConfig, saveConfig, exportSchedule,
+  toggleRP, pwaTriggerInstall, pwaDismiss,
+});
+
 
 // ════════════════════════════════════════════
 // PWA — MANIFEST (inline, sem arquivo externo)
