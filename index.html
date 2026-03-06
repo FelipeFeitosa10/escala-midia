@@ -1028,7 +1028,34 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
   </div>
 </div>
 
-<script>
+<script type="module">
+// ════════════════════════════════════════════
+// FIREBASE SETUP
+// ════════════════════════════════════════════
+import { initializeApp }                          from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, doc, collection,
+         getDoc, getDocs, setDoc, addDoc,
+         updateDoc, deleteDoc,
+         onSnapshot, serverTimestamp }            from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBAyWY4dsmyPXO-M35nw7I7uoN8nxSMVYE",
+  authDomain: "escala-midia-7e6ce.firebaseapp.com",
+  projectId: "escala-midia-7e6ce",
+  storageBucket: "escala-midia-7e6ce.firebasestorage.app",
+  messagingSenderId: "318547591722",
+  appId: "1:318547591722:web:dbdd7e019d4783eee07953"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db    = getFirestore(fbApp);
+
+// Colecções
+const COL_EVENTS   = 'events';
+const COL_VOLS     = 'volunteers';
+const COL_NOTIFS   = 'notifications';
+const DOC_CONFIG   = 'config/app';
+
 // ════════════════════════════════════════════
 // CONSTANTS & META
 // ════════════════════════════════════════════
@@ -1054,38 +1081,110 @@ function fmtDate(d) {
 function addDays(n) { const d=new Date(today); d.setDate(d.getDate()+n); return fmtDate(d); }
 
 // ════════════════════════════════════════════
-// APP STATE  (persisted via localStorage)
+// APP STATE  (synced via Firebase)
 // ════════════════════════════════════════════
 let state = {
   churchName: 'Minha Igreja',
-  defaultTimeDom: '09:00',
-  defaultTimeTer: '19:30',
+  defaultTimeDom:   '09:00',
+  defaultTimeTer:   '19:30',
   defaultTimeNoite: '19:00',
-  defaultRolesDom: ['Câmera','Transmissão ao Vivo','Som/Áudio','Projeção/Slides','Iluminação'],
-  defaultRolesTer: ['Som/Áudio','Projeção/Slides','Câmera'],
+  defaultRolesDom:   ['Câmera','Transmissão ao Vivo','Som/Áudio','Projeção/Slides','Iluminação'],
+  defaultRolesTer:   ['Som/Áudio','Projeção/Slides','Câmera'],
   defaultRolesNoite: ['Câmera','Transmissão ao Vivo','Som/Áudio','Projeção/Slides','Iluminação'],
   events: [],
   volunteers: [],
   notifications: [],
-  nextEId: 1,
-  nextVId: 1,
 };
 
-function persist() {
-  try { localStorage.setItem('escala_midia_v2', JSON.stringify(state)); } catch(e){}
+// ─── Loading overlay ───
+function showLoading(msg='Carregando...') {
+  let el = document.getElementById('fb-loading');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'fb-loading';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(8,9,13,.85);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;font-family:Mulish,sans-serif;color:#e8c06a;font-size:.95rem;backdrop-filter:blur(6px)';
+    el.innerHTML = '<div style="font-size:2rem;animation:spin 1s linear infinite">🔥</div><span id="fb-loading-msg"></span>';
+    const style = document.createElement('style');
+    style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(style);
+    document.body.appendChild(el);
+  }
+  document.getElementById('fb-loading-msg').textContent = msg;
+  el.style.display = 'flex';
+}
+function hideLoading() {
+  const el = document.getElementById('fb-loading');
+  if (el) el.style.display = 'none';
 }
 
-function loadState() {
+// ─── Persist config to Firebase ───
+async function persistConfig() {
   try {
-    const raw = localStorage.getItem('escala_midia_v2');
-    if (raw) { state = JSON.parse(raw); return; }
-  } catch(e){}
-  // seed demo data
-  seedDemo();
+    await setDoc(doc(db, 'config', 'app'), {
+      churchName:        state.churchName,
+      defaultTimeDom:    state.defaultTimeDom,
+      defaultTimeTer:    state.defaultTimeTer,
+      defaultTimeNoite:  state.defaultTimeNoite,
+      defaultRolesDom:   state.defaultRolesDom,
+      defaultRolesTer:   state.defaultRolesTer,
+      defaultRolesNoite: state.defaultRolesNoite,
+    });
+  } catch(e) { console.error('persistConfig:', e); }
 }
 
-function seedDemo() {
+// ─── Load config from Firebase ───
+async function loadConfig_fb() {
+  try {
+    const snap = await getDoc(doc(db, 'config', 'app'));
+    if (snap.exists()) {
+      const d = snap.data();
+      state.churchName        = d.churchName        || state.churchName;
+      state.defaultTimeDom    = d.defaultTimeDom    || state.defaultTimeDom;
+      state.defaultTimeTer    = d.defaultTimeTer    || state.defaultTimeTer;
+      state.defaultTimeNoite  = d.defaultTimeNoite  || state.defaultTimeNoite;
+      state.defaultRolesDom   = d.defaultRolesDom   || state.defaultRolesDom;
+      state.defaultRolesTer   = d.defaultRolesTer   || state.defaultRolesTer;
+      state.defaultRolesNoite = d.defaultRolesNoite || state.defaultRolesNoite;
+    }
+  } catch(e) { console.error('loadConfig_fb:', e); }
+}
+
+// ─── Real-time listeners ───
+function startListeners() {
+  // Events
+  onSnapshot(collection(db, COL_EVENTS), snap => {
+    state.events = snap.docs.map(d => ({ fbId: d.id, ...d.data() }));
+    state.events.sort((a,b) => (a.date||'').localeCompare(b.date||''));
+    if (currentView === 'escala')  renderCalendar();
+    if (currentView === 'eventos') renderEvents();
+    updateStats();
+  });
+
   // Volunteers
+  onSnapshot(collection(db, COL_VOLS), snap => {
+    state.volunteers = snap.docs.map(d => ({ fbId: d.id, ...d.data() }));
+    state.volunteers.sort((a,b) => (a.name||'').localeCompare(b.name||''));
+    if (currentView === 'equipe') renderVols(document.getElementById('vol-search').value);
+    updateStats();
+  });
+
+  // Notifications
+  onSnapshot(collection(db, COL_NOTIFS), snap => {
+    state.notifications = snap.docs.map(d => ({ fbId: d.id, ...d.data() }));
+    state.notifications.sort((a,b) => (b.ts||0) - (a.ts||0));
+    if (currentView === 'avisos') renderNotifs();
+    updateBadge();
+  });
+}
+
+// ─── Seed demo data (only if DB is empty) ───
+async function maybeSeedDemo() {
+  const evSnap  = await getDocs(collection(db, COL_EVENTS));
+  const volSnap = await getDocs(collection(db, COL_VOLS));
+  if (!evSnap.empty || !volSnap.empty) return; // already has data
+
+  showLoading('Configurando pela primeira vez...');
+
   const vols = [
     { name:'Ana Souza',     phone:'(11) 99811-2233', roles:['Câmera','Fotografia'],              avail:'ok',      services:8  },
     { name:'Lucas Mendes',  phone:'(11) 97722-3344', roles:['Transmissão ao Vivo','Som/Áudio'],  avail:'ok',      services:12 },
@@ -1094,33 +1193,71 @@ function seedDemo() {
     { name:'Mariana Lima',  phone:'(11) 94455-6677', roles:['Câmera','Transmissão ao Vivo'],     avail:'busy',    services:3  },
     { name:'Rafael Dias',   phone:'(11) 93366-7788', roles:['Iluminação','Projeção/Slides'],     avail:'ok',      services:6  },
   ];
-  vols.forEach(v => { state.volunteers.push({id: state.nextVId++, ...v}); });
+  for (const v of vols) await addDoc(collection(db, COL_VOLS), v);
 
-  // Events — all Sundays and Tuesdays of current month
-  const y=today.getFullYear(), m=today.getMonth();
-  const days = new Date(y,m+1,0).getDate();
-  for (let d=1; d<=days; d++) {
-    const dt = new Date(y,m,d);
+  const y = today.getFullYear(), m = today.getMonth();
+  const days = new Date(y, m+1, 0).getDate();
+  for (let d = 1; d <= days; d++) {
+    const dt  = new Date(y, m, d);
     const dow = dt.getDay();
-    const ds = fmtDate(dt);
-    if (dow===0) {
-      state.events.push({ id:state.nextEId++, name:'Culto de Domingo', date:ds, time:'09:00', type:'domingo',
-        roles:[...state.defaultRolesDom], assigned:{}, notes:'' });
-      state.events.push({ id:state.nextEId++, name:'Culto de Domingo à Noite', date:ds, time:'19:00', type:'noite',
-        roles:[...state.defaultRolesNoite], assigned:{}, notes:'' });
+    const ds  = fmtDate(dt);
+    if (dow === 0) {
+      await addDoc(collection(db, COL_EVENTS), { name:'Culto de Domingo', date:ds, time:'09:00', type:'domingo', roles:[...state.defaultRolesDom], assigned:{}, notes:'' });
+      await addDoc(collection(db, COL_EVENTS), { name:'Culto de Domingo à Noite', date:ds, time:'19:00', type:'noite', roles:[...state.defaultRolesNoite], assigned:{}, notes:'' });
     }
-    if (dow===2) {
-      state.events.push({ id:state.nextEId++, name:'Culto de Terça', date:ds, time:'19:30', type:'terca',
-        roles:[...state.defaultRolesTer], assigned:{}, notes:'' });
+    if (dow === 2) {
+      await addDoc(collection(db, COL_EVENTS), { name:'Culto de Terça', date:ds, time:'19:30', type:'terca', roles:[...state.defaultRolesTer], assigned:{}, notes:'' });
     }
   }
 
-  // Notifications
-  state.notifications = [
-    { id:1, icon:'📅', title:'App de escala ativo!', body:'Bem-vindo! Cadastre sua equipe e comece a escalar os cultos.', time:'Agora', unread:true },
-    { id:2, icon:'⚠️', title:'Vagas em aberto', body:'Existem funções sem voluntário escalado neste mês. Acesse Eventos para escalar.', time:'Agora', unread:true },
-    { id:3, icon:'💡', title:'Dica', body:'Clique em qualquer evento no calendário para escalar a equipe rapidamente.', time:'Agora', unread:true },
+  const notifs = [
+    { icon:'🔥', title:'Firebase conectado!', body:'Agora todas as alterações são salvas na nuvem e aparecem para toda a equipe em tempo real.', ts: Date.now(), unread:true },
+    { icon:'👥', title:'Equipe demo cadastrada', body:'Voluntários de exemplo foram adicionados. Substitua pelos membros reais da sua equipe.', ts: Date.now()-1000, unread:true },
   ];
+  for (const n of notifs) await addDoc(collection(db, COL_NOTIFS), n);
+
+  hideLoading();
+}
+
+// ────────────────────────────────────────────
+// FIREBASE CRUD — EVENTS
+// ────────────────────────────────────────────
+async function fb_addEvent(data) {
+  return await addDoc(collection(db, COL_EVENTS), data);
+}
+async function fb_updateEvent(fbId, data) {
+  await updateDoc(doc(db, COL_EVENTS, fbId), data);
+}
+async function fb_deleteEvent(fbId) {
+  await deleteDoc(doc(db, COL_EVENTS, fbId));
+}
+
+// ────────────────────────────────────────────
+// FIREBASE CRUD — VOLUNTEERS
+// ────────────────────────────────────────────
+async function fb_addVol(data) {
+  return await addDoc(collection(db, COL_VOLS), data);
+}
+async function fb_updateVol(fbId, data) {
+  await updateDoc(doc(db, COL_VOLS, fbId), data);
+}
+async function fb_deleteVol(fbId) {
+  await deleteDoc(doc(db, COL_VOLS, fbId));
+}
+
+// ────────────────────────────────────────────
+// FIREBASE CRUD — NOTIFICATIONS
+// ────────────────────────────────────────────
+async function fb_addNotif(icon, title, body) {
+  await addDoc(collection(db, COL_NOTIFS), { icon, title, body, ts: Date.now(), unread: true });
+}
+async function fb_markRead(fbId) {
+  await updateDoc(doc(db, COL_NOTIFS, fbId), { unread: false });
+}
+async function fb_markAllRead() {
+  const snap = await getDocs(collection(db, COL_NOTIFS));
+  const promises = snap.docs.filter(d => d.data().unread).map(d => updateDoc(d.ref, { unread: false }));
+  await Promise.all(promises);
 }
 
 // ════════════════════════════════════════════
@@ -1231,7 +1368,7 @@ function renderCalendar() {
         const missing=ev.roles.filter(r=>!ev.assigned[r]).length;
         const chipCls = ev.type==='domingo'?'dom': ev.type==='noite'?'noite': ev.type==='especial'?'esp':'ter';
         const chipIcon = ev.type==='domingo'?'☀️': ev.type==='noite'?'🌃': ev.type==='especial'?'🎉':'🌙';
-        return `<div class="ev-chip ${chipCls}" onclick="openAssign(${ev.id})">
+        return `<div class="ev-chip ${chipCls}" onclick="openAssign('${ev.fbId}')">
           ${chipIcon}
           <span class="chip-label">${ev.name}</span>
           ${missing>0?'<span class="missing-dot"></span>':''}
@@ -1273,7 +1410,7 @@ function renderEvents() {
     const typeCls=isDom?'dom':isNoite?'noite':isEsp?'esp':'ter';
     const typeLabel=isDom?'☀️ Dom. Manhã':isNoite?'🌃 Dom. Noite':isEsp?'🎉 Evento Especial':'🌙 Terça';
     const rolesHTML=ev.roles.map(r=>{
-      const vol=state.volunteers.find(v=>ev.assigned[r]===v.id);
+      const vol=state.volunteers.find(v=>ev.assigned[r]===v.fbId);
       const m=ROLE_META[r]||{};
       return `<div class="rc ${m.cls||''} ${vol?'filled':'empty'}">${m.icon||''} ${r}${vol?' · '+vol.name.split(' ')[0]:''}</div>`;
     }).join('');
@@ -1292,8 +1429,8 @@ function renderEvents() {
         <div class="roles-row">${rolesHTML}</div>
       </div>
       <div class="ev-card-actions">
-        <button class="btn btn-primary btn-sm" onclick="openAssign(${ev.id})">Escalar</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete('event',${ev.id},'Remover evento','Deseja remover &quot;${ev.name}&quot;?')">✕</button>
+        <button class="btn btn-primary btn-sm" onclick="openAssign('${ev.fbId}')">Escalar</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('event','${ev.fbId}','Remover evento','Deseja remover &quot;${ev.name}&quot;?')">✕</button>
       </div>
     </div>`;
   }).join('');
@@ -1327,7 +1464,7 @@ function renderVols(search='') {
       return `<div class="rc ${m.cls||''} filled" style="font-size:.65rem">${m.icon||''} ${r}</div>`;
     }).join('');
     const timesThisMonth=state.events.filter(e=>e.date.startsWith(`${curYear}-${String(curMonth+1).padStart(2,'0')}`))
-      .filter(e=>Object.values(e.assigned).includes(v.id)).length;
+      .filter(e=>Object.values(e.assigned).includes(v.fbId)).length;
     return `<div class="vol-card">
       <div class="vol-top">
         <div class="vol-avatar" style="background:${color}22;color:${color};border-color:${color}55">${initials}</div>
@@ -1340,9 +1477,9 @@ function renderVols(search='') {
       <div class="vol-avail"><div class="avail-dot ${aCls}"></div>${aTxt}</div>
       <div class="vol-phone">📱 ${v.phone||'—'}</div>
       <div class="vol-footer">
-        <button class="btn btn-wa btn-sm" style="flex:1" onclick="sendWA(${v.id})">WhatsApp</button>
-        <button class="btn btn-ghost btn-sm" onclick="openEditVol(${v.id})">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="confirmDelete('vol',${v.id},'Remover voluntário','Deseja remover ${v.name.replace(/'/g,"\\'")}?')">✕</button>
+        <button class="btn btn-wa btn-sm" style="flex:1" onclick="sendWA('${v.fbId}')">WhatsApp</button>
+        <button class="btn btn-ghost btn-sm" onclick="openEditVol('${v.fbId}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete('vol','${v.fbId}','Remover voluntário','Deseja remover ${v.name.replace(/'/g,"\\'")}?')">✕</button>
       </div>
     </div>`;
   }).join('');
@@ -1351,11 +1488,11 @@ function renderVols(search='') {
 function filterVols(q){ renderVols(q); }
 
 function sendWA(id){
-  const v=state.volunteers.find(v=>v.id===id);
+  const v=state.volunteers.find(v=>v.fbId===id);
   if(!v) return;
   const n=v.phone.replace(/\D/g,'');
   // Find next event where they're assigned
-  const nextEv=state.events.filter(e=>Object.values(e.assigned).includes(v.id)&&e.date>=todayStr)
+  const nextEv=state.events.filter(e=>Object.values(e.assigned).includes(v.fbId)&&e.date>=todayStr)
     .sort((a,b)=>a.date.localeCompare(b.date))[0];
   let msg=`Olá ${v.name.split(' ')[0]}! 🙏\n\nVocê está na escala de mídia da nossa igreja.`;
   if(nextEv){
@@ -1370,39 +1507,17 @@ function sendWA(id){
 // ════════════════════════════════════════════
 // NOTIFICATIONS
 // ════════════════════════════════════════════
-function renderNotifs(){
-  const el=document.getElementById('notif-list');
-  if(!state.notifications.length){
-    el.innerHTML='<div class="empty-state"><div class="ei">🔔</div><p>Sem notificações.</p></div>';
-    return;
-  }
-  el.innerHTML=state.notifications.map(n=>`
-    <div class="notif-card ${n.unread?'unread':''}" onclick="markRead(${n.id})">
-      <div class="notif-icon">${n.icon}</div>
-      <div class="notif-body"><h4>${n.title}</h4><p>${n.body}</p></div>
-      <div class="notif-time">${n.time}</div>
-    </div>`).join('');
+function renderNotifs() {
+  const el=document.getElementById("notif-list");
+  if(!state.notifications.length){ el.innerHTML="<div class=\"empty-state\"><div class=\"ei\">🔔</div><p>Sem notificações.</p></div>"; return; }
+  const timeAgo = ts => { if(!ts) return ""; const d=Date.now()-ts; if(d<60000) return "Agora"; if(d<3600000) return "Há "+Math.floor(d/60000)+"min"; if(d<86400000) return "Há "+Math.floor(d/3600000)+"h"; return "Há "+Math.floor(d/86400000)+"d"; };
+  el.innerHTML = state.notifications.map(n => `<div class="notif-card ${n.unread?"unread":""}" onclick="markRead('${n.fbId}')"><div class="notif-icon">${n.icon}</div><div class="notif-body"><h4>${n.title}</h4><p>${n.body}</p></div><div class="notif-time">${timeAgo(n.ts)}</div></div>`).join("");
   updateBadge();
 }
-
-function markRead(id){
-  state.notifications=state.notifications.map(n=>n.id===id?{...n,unread:false}:n);
-  persist(); renderNotifs();
-}
-function markAllRead(){
-  state.notifications=state.notifications.map(n=>({...n,unread:false}));
-  persist(); renderNotifs();
-}
-function updateBadge(){
-  const c=state.notifications.filter(n=>n.unread).length;
-  const b=document.getElementById('notif-badge');
-  b.textContent=c; b.style.display=c?'':'none';
-}
-function pushNotif(icon,title,body){
-  const id=Date.now();
-  state.notifications.unshift({id,icon,title,body,time:'Agora',unread:true});
-  persist(); updateBadge();
-}
+function markRead(fbId) { fb_markRead(fbId); }
+function markAllRead() { fb_markAllRead(); }
+function updateBadge() { const c=state.notifications.filter(n=>n.unread).length; const b=document.getElementById("notif-badge"); b.textContent=c; b.style.display=c?"":"none"; }
+function pushNotif(icon,title,body) { fb_addNotif(icon,title,body); }
 
 // ════════════════════════════════════════════
 // STATS
@@ -1518,22 +1633,18 @@ function autoFillEventRoles(){
   }
 }
 
-function saveEvent(){
+async function saveEvent(){
   const type=document.getElementById('nev-type').value;
   let name=document.getElementById('nev-name').value.trim();
-  // Para evento especial, usar descrição como nome se nome estiver vazio
-  if(type==='especial' && !name){
-    name=document.getElementById('nev-especial-desc').value.trim();
-  }
+  if(type==='especial' && !name) name=document.getElementById('nev-especial-desc').value.trim();
   const date=document.getElementById('nev-date').value;
   const time=document.getElementById('nev-time').value;
   const notes=document.getElementById('nev-notes').value.trim();
   if(!name||!date){ toast('Preencha o nome e a data!','warn'); return; }
   if(type==='especial'&&!time){ toast('Informe o horário do evento!','warn'); return; }
   const roles=getSelectedRoles('nev-roles');
-  state.events.push({id:state.nextEId++, name, date, time, type, roles, assigned:{}, notes});
-  persist(); closeModal('modal-event');
-  renderCalendar(); renderEvents(); updateStats();
+  await fb_addEvent({ name, date, time, type, roles, assigned:{}, notes });
+  closeModal('modal-event');
   toast(`Evento "${name}" adicionado!`);
   pushNotif(type==='especial'?'🎉':'📅', type==='especial'?'Evento especial criado':'Novo evento criado',`"${name}" foi adicionado à escala.`);
 }
@@ -1548,44 +1659,41 @@ function openNewVol(){
 }
 
 let editingVolId=null;
-function openEditVol(id){
-  const v=state.volunteers.find(v=>v.id===id);
+function openEditVol(fbId){
+  const v=state.volunteers.find(v=>v.fbId===fbId);
   if(!v) return;
-  editingVolId=id;
+  editingVolId=fbId;
   document.getElementById('nvol-name').value=v.name;
   document.getElementById('nvol-phone').value=v.phone||'';
   document.getElementById('nvol-avail').value=v.avail;
-  setRolePicker('nvol-roles',v.roles);
+  setRolePicker('nvol-roles',v.roles||[]);
   document.querySelector('#modal-vol .modal-title').innerHTML='Editar <em>Voluntário</em>';
   document.getElementById('modal-vol').classList.add('open');
 }
 
-function saveVol(){
+async function saveVol(){
   const name=document.getElementById('nvol-name').value.trim();
   const phone=document.getElementById('nvol-phone').value.trim();
   const avail=document.getElementById('nvol-avail').value;
   if(!name){ toast('Informe o nome!','warn'); return; }
   const roles=getSelectedRoles('nvol-roles');
   if(editingVolId){
-    const idx=state.volunteers.findIndex(v=>v.id===editingVolId);
-    if(idx>=0) state.volunteers[idx]={...state.volunteers[idx], name, phone, avail, roles};
+    await fb_updateVol(editingVolId, { name, phone, avail, roles });
     editingVolId=null;
     toast(`${name} atualizado!`);
   } else {
-    state.volunteers.push({id:state.nextVId++, name, phone, roles, avail, services:0});
+    await fb_addVol({ name, phone, roles, avail, services:0 });
     toast(`${name} adicionado à equipe!`);
     pushNotif('👤','Novo voluntário',`${name} entrou na equipe de mídia.`);
   }
-  persist(); closeModal('modal-vol');
+  closeModal('modal-vol');
   document.querySelector('#modal-vol .modal-title').innerHTML='Novo <em>Voluntário</em>';
-  renderVols(document.getElementById('vol-search').value);
-  updateStats();
 }
 
 // ── ASSIGN ──
-function openAssign(id){
-  assignId=id;
-  const ev=state.events.find(e=>e.id===id);
+function openAssign(fbId){
+  assignId=fbId;
+  const ev=state.events.find(e=>e.fbId===fbId);
   if(!ev) return;
   const dt=new Date(ev.date+'T12:00');
   document.getElementById('assign-ev-info').innerHTML=
@@ -1593,10 +1701,10 @@ function openAssign(id){
   const list=document.getElementById('assign-list');
   list.innerHTML=ev.roles.map(r=>{
     const m=ROLE_META[r]||{};
-    const compatible=state.volunteers.filter(v=>v.roles.includes(r));
+    const compatible=state.volunteers.filter(v=>v.roles&&v.roles.includes(r));
     const opts=compatible.map(v=>{
       const busy=v.avail==='busy'?' (indisponível)':v.avail==='partial'?' (parcial)':'';
-      return `<option value="${v.id}" ${ev.assigned[r]===v.id?'selected':''}>${v.name}${busy}</option>`;
+      return `<option value="${v.fbId}" ${ev.assigned&&ev.assigned[r]===v.fbId?'selected':''}>${v.name}${busy}</option>`;
     }).join('');
     const hasVols=compatible.length>0;
     return `<div class="assign-row">
@@ -1610,37 +1718,34 @@ function openAssign(id){
   document.getElementById('modal-assign').classList.add('open');
 }
 
-function saveAssign(){
-  const ev=state.events.find(e=>e.id===assignId);
+async function saveAssign(){
+  const ev=state.events.find(e=>e.fbId===assignId);
   if(!ev) return;
+  const newAssigned={};
   document.querySelectorAll('#assign-list .assign-select').forEach(sel=>{
     const role=sel.dataset.role;
     const val=sel.value;
-    if(val) { ev.assigned[role]=parseInt(val); }
-    else delete ev.assigned[role];
+    if(val) newAssigned[role]=val;
   });
-  persist(); closeModal('modal-assign');
-  renderCalendar(); renderEvents(); updateStats();
-  toast('Escala atualizada!');
+  await fb_updateEvent(ev.fbId, { assigned: newAssigned });
+  closeModal('modal-assign');
+  toast('Escala atualizada! ✅');
   pushNotif('✅','Escala confirmada',`Equipe escalada para "${ev.name}".`);
 }
 
 // ── CONFIRM DELETE ──
-function confirmDelete(type, id, title, body){
+function confirmDelete(type, fbId, title, body){
   document.getElementById('confirm-title').innerHTML=title;
   document.getElementById('confirm-body').innerHTML=body;
-  document.getElementById('confirm-ok').onclick=()=>{
+  document.getElementById('confirm-ok').onclick=async ()=>{
     if(type==='event'){
-      state.events=state.events.filter(e=>e.id!==id);
-      renderCalendar(); renderEvents(); updateStats();
+      await fb_deleteEvent(fbId);
       toast('Evento removido.','warn');
     } else {
-      state.volunteers=state.volunteers.filter(v=>v.id!==id);
-      renderVols(document.getElementById('vol-search').value);
-      updateStats();
+      await fb_deleteVol(fbId);
       toast('Voluntário removido.','warn');
     }
-    persist(); closeModal('modal-confirm');
+    closeModal('modal-confirm');
   };
   document.getElementById('modal-confirm').classList.add('open');
 }
@@ -1656,7 +1761,7 @@ function loadConfig(){
   setRolePicker('cfg-roles-ter',state.defaultRolesTer);
 }
 
-function saveConfig(){
+async function saveConfig(){
   state.churchName=document.getElementById('cfg-church-name').value.trim()||'Minha Igreja';
   state.defaultTimeDom=document.getElementById('cfg-time-dom').value;
   state.defaultTimeNoite=document.getElementById('cfg-time-noite').value;
@@ -1666,8 +1771,8 @@ function saveConfig(){
   state.defaultRolesTer=getSelectedRoles('cfg-roles-ter');
   document.getElementById('church-name-display').textContent=state.churchName;
   document.title=`Escala de Mídia — ${state.churchName}`;
-  persist();
-  toast('Configurações salvas!');
+  await persistConfig();
+  toast('Configurações salvas! ✅');
 }
 
 // ── EXPORT ──
@@ -1676,40 +1781,39 @@ function exportSchedule(){
     const [y,m]=e.date.split('-').map(Number);
     return y===curYear&&m===curMonth+1;
   }).sort((a,b)=>a.date.localeCompare(b.date));
-
-  let txt=`ESCALA DE MÍDIA — ${state.churchName}\n`;
-  txt+=`${MONTHS[curMonth]} ${curYear}\n`;
-  txt+='='.repeat(40)+'\n\n';
-
+  let txt=`ESCALA DE MÍDIA — ${state.churchName}\n${MONTHS[curMonth]} ${curYear}\n`+'='.repeat(40)+'\n\n';
   mEvs.forEach(ev=>{
     const dt=new Date(ev.date+'T12:00');
     const typeLabel=ev.type==='domingo'?'☀️ Dom. Manhã':ev.type==='noite'?'🌃 Dom. Noite':ev.type==='especial'?'🎉 Especial':'🌙 Terça';
-    txt+=`📅 ${ev.name} (${typeLabel})\n`;
-    txt+=`   Data: ${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()} — ${ev.time}\n`;
+    txt+=`📅 ${ev.name} (${typeLabel})\n   Data: ${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()} — ${ev.time}\n`;
     ev.roles.forEach(r=>{
-      const vol=state.volunteers.find(v=>ev.assigned[r]===v.id);
+      const vol=state.volunteers.find(v=>ev.assigned&&ev.assigned[r]===v.fbId);
       txt+=`   ${ROLE_META[r]?.icon||'•'} ${r}: ${vol?vol.name:'— Em aberto —'}\n`;
     });
     txt+='\n';
   });
-
-  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
+  a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain;charset=utf-8'}));
   a.download=`escala-${MONTHS[curMonth].toLowerCase()}-${curYear}.txt`;
   a.click();
   toast('Escala exportada!');
 }
 
 // ════════════════════════════════════════════
-// INIT
+// INIT — Firebase
 // ════════════════════════════════════════════
-loadState();
-document.getElementById('church-name-display').textContent=state.churchName;
-document.title=`Escala de Mídia — ${state.churchName}`;
-renderCalendar();
-updateBadge();
-updateStats();
+(async () => {
+  showLoading('Conectando ao Firebase...');
+  await loadConfig_fb();
+  document.getElementById('church-name-display').textContent = state.churchName;
+  document.title = `Escala de Mídia — ${state.churchName}`;
+  await maybeSeedDemo();
+  startListeners();     // real-time listeners update state & UI automatically
+  hideLoading();
+  renderCalendar();
+  updateBadge();
+  updateStats();
+})();
 
 // ════════════════════════════════════════════
 // PWA — MANIFEST (inline, sem arquivo externo)
