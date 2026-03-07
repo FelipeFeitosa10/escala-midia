@@ -898,7 +898,7 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
     <button class="nav-btn" onclick="goView('avisos',this)">🔔 Avisos <span class="notif-badge" id="notif-badge">0</span></button>
     <button class="nav-btn" onclick="goView('config',this)" id="nav-config">⚙️</button>
     <!-- Login button (shown when logged out) -->
-    <button class="nav-btn" id="btn-login" onclick="showLoginScreen()" style="background:var(--gold-gl2);border-color:var(--gold-dk);color:var(--gold);font-weight:700">🔐 Entrar</button>
+    <button class="nav-btn" id="btn-login" onclick="window.showLoginScreen&&window.showLoginScreen()" style="background:var(--gold-gl2);border-color:var(--gold-dk);color:var(--gold);font-weight:700">🔐 Entrar</button>
     <!-- User chip (shown when logged in) -->
     <div class="user-chip" id="user-chip" onclick="toggleUserMenu()" style="display:none">
       <div class="user-avatar" id="user-avatar">?</div>
@@ -2178,13 +2178,6 @@ async function saveEvent(){
 }
 
 // ── NEW VOLUNTEER ──
-function openNewVol(){
-  document.getElementById('nvol-name').value='';
-  document.getElementById('nvol-phone').value='';
-  document.getElementById('nvol-avail').value='ok';
-  clearRolePicker('nvol-roles');
-  document.getElementById('modal-vol').classList.add('open');
-}
 
 function openNewVol(){
   document.getElementById('nvol-name').value='';
