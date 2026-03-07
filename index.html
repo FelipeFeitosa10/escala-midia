@@ -850,6 +850,9 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
     <button class="nav-btn" onclick="goView('equipe',this)">👥 Equipe</button>
     <button class="nav-btn" onclick="goView('avisos',this)">🔔 Avisos <span class="notif-badge" id="notif-badge">0</span></button>
     <button class="nav-btn" onclick="goView('config',this)" id="nav-config">⚙️</button>
+    <!-- Login button (shown when logged out) -->
+    <button class="nav-btn" id="btn-login" onclick="showLoginScreen()" style="background:var(--gold-gl2);border-color:var(--gold-dk);color:var(--gold);font-weight:700">🔐 Entrar</button>
+    <!-- User chip (shown when logged in) -->
     <div class="user-chip" id="user-chip" onclick="toggleUserMenu()" style="display:none">
       <div class="user-avatar" id="user-avatar">?</div>
       <span class="user-name" id="user-disp-name">—</span>
@@ -1984,11 +1987,17 @@ function applyRoleUI() {
 }
 
 function updateUserChip(user, role) {
-  const chip = document.getElementById('user-chip');
+  const chip   = document.getElementById('user-chip');
   const avatar = document.getElementById('user-avatar');
   const nameEl = document.getElementById('user-disp-name');
-  if (!user) { chip.style.display = 'none'; return; }
+  const loginBtn = document.getElementById('btn-login');
+  if (!user) {
+    chip.style.display = 'none';
+    if (loginBtn) loginBtn.style.display = '';
+    return;
+  }
   chip.style.display = 'flex';
+  if (loginBtn) loginBtn.style.display = 'none';
   const name = user.displayName || user.email.split('@')[0];
   nameEl.textContent = name;
   if (user.photoURL) {
@@ -1996,7 +2005,6 @@ function updateUserChip(user, role) {
   } else {
     avatar.textContent = name[0].toUpperCase();
   }
-  // user menu
   document.getElementById('umenu-name').textContent = name;
   document.getElementById('umenu-email').textContent = user.email;
   const roleLabels = { admin:'👑 Admin', lider:'⭐ Líder', equipe:'👤 Equipe' };
