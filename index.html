@@ -736,6 +736,53 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
   margin-bottom: 1rem; text-align: center;
 }
 .readonly-notice.show { display: block; }
+/* ══ VOLUNTEER CARD ENHANCEMENTS ══ */
+.vol-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.vol-birthday { font-size:.72rem; color:var(--text3); margin-top:.2rem; }
+.vol-birthday span { color:#f9a8d4; }
+.vol-confirm-status { display:flex; gap:.35rem; flex-wrap:wrap; margin-top:.4rem; }
+.confirm-badge { font-size:.68rem; padding:.2rem .55rem; border-radius:20px; font-weight:700; }
+.cb-confirmed { background:rgba(74,222,128,.15); color:#4ade80; border:1px solid rgba(74,222,128,.3); }
+.cb-declined  { background:rgba(248,113,113,.15); color:#f87171; border:1px solid rgba(248,113,113,.3); }
+.cb-pending   { background:rgba(168,174,196,.1);  color:var(--text3); border:1px solid var(--border); }
+
+/* ══ EQUIPE TABS ══ */
+.equipe-tabs { display:flex; gap:.4rem; margin-bottom:1.2rem; flex-wrap:wrap; }
+.eq-tab { background:var(--s2); border:1px solid var(--border); border-radius:8px; padding:.4rem .9rem; font-size:.78rem; font-weight:700; color:var(--text2); cursor:pointer; transition:all .18s; font-family:'Mulish',sans-serif; }
+.eq-tab.active { background:var(--gold-gl2); border-color:var(--gold-dk); color:var(--gold); }
+
+/* ══ HISTORY VIEW ══ */
+.hist-list { display:flex; flex-direction:column; gap:.5rem; }
+.hist-row { background:var(--s2); border:1px solid var(--border); border-radius:10px; padding:.75rem 1rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; }
+.hist-ev-name { font-size:.85rem; font-weight:700; }
+.hist-ev-date { font-size:.72rem; color:var(--text2); }
+.hist-role-chip { font-size:.7rem; padding:.2rem .55rem; border-radius:10px; background:var(--gold-gl2); border:1px solid var(--gold-dk); color:var(--gold); }
+
+/* ══ MURAL DE RECADOS ══ */
+.mural-list { display:flex; flex-direction:column; gap:.75rem; }
+.mural-card { background:var(--s2); border:1px solid var(--border); border-radius:14px; padding:1.1rem 1.25rem; position:relative; }
+.mural-card.pinned { border-color:var(--gold-dk); background:var(--gold-gl); }
+.mural-pin { position:absolute; top:.75rem; right:.75rem; font-size:.85rem; }
+.mural-author { display:flex; align-items:center; gap:.6rem; margin-bottom:.6rem; }
+.mural-avatar { width:28px; height:28px; border-radius:50%; background:var(--gold-gl2); border:1px solid var(--gold-dk); display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:800; color:var(--gold); flex-shrink:0; overflow:hidden; }
+.mural-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.mural-author-name { font-size:.8rem; font-weight:700; }
+.mural-time { font-size:.68rem; color:var(--text3); }
+.mural-text { font-size:.85rem; line-height:1.6; color:var(--text2); }
+.mural-actions { display:flex; gap:.5rem; margin-top:.75rem; }
+
+/* ══ REMINDER BANNER ══ */
+.reminder-banner { background:rgba(212,168,67,.1); border:1px solid var(--gold-dk); border-radius:12px; padding:.85rem 1.1rem; display:flex; align-items:center; gap:.85rem; margin-bottom:1rem; }
+.reminder-banner .rb-icon { font-size:1.4rem; flex-shrink:0; }
+.reminder-banner .rb-text { flex:1; font-size:.82rem; color:var(--text2); line-height:1.5; }
+.reminder-banner .rb-text strong { color:var(--gold); display:block; font-size:.88rem; }
+
+/* ══ CONFIRMATION MODAL ══ */
+.confirm-choice { display:flex; gap:.75rem; margin-top:1rem; }
+.btn-confirm-yes { flex:1; background:rgba(74,222,128,.15); border:1px solid rgba(74,222,128,.4); color:#4ade80; border-radius:10px; padding:.65rem; font-family:'Mulish',sans-serif; font-weight:800; font-size:.88rem; cursor:pointer; transition:all .2s; }
+.btn-confirm-yes:hover { background:rgba(74,222,128,.25); }
+.btn-confirm-no  { flex:1; background:rgba(248,113,113,.12); border:1px solid rgba(248,113,113,.35); color:#f87171; border-radius:10px; padding:.65rem; font-family:'Mulish',sans-serif; font-weight:800; font-size:.88rem; cursor:pointer; transition:all .2s; }
+.btn-confirm-no:hover { background:rgba(248,113,113,.22); }
 </style>
 </head>
 <body>
@@ -969,19 +1016,55 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
         <h1>Equipe de <em>Mídia</em></h1>
         <button class="btn btn-primary edit-only" onclick="openNewVol()">+ Voluntário</button>
       </div>
-      <div class="search-bar">
-        <input class="search-input" type="text" placeholder="🔍  Buscar voluntário..." oninput="filterVols(this.value)" id="vol-search">
+      <div class="equipe-tabs">
+        <button class="eq-tab active" onclick="setEquipeTab('membros',this)">👥 Membros</button>
+        <button class="eq-tab" onclick="setEquipeTab('historico',this)">📊 Histórico</button>
+        <button class="eq-tab" onclick="setEquipeTab('aniversarios',this)">🎂 Aniversários</button>
       </div>
-      <div class="vol-grid" id="vol-grid"></div>
+      <!-- Membros -->
+      <div id="eq-membros">
+        <div class="search-bar">
+          <input class="search-input" type="text" placeholder="🔍  Buscar voluntário..." oninput="filterVols(this.value)" id="vol-search">
+        </div>
+        <div class="vol-grid" id="vol-grid"></div>
+      </div>
+      <!-- Histórico -->
+      <div id="eq-historico" style="display:none">
+        <div class="search-bar">
+          <input class="search-input" type="text" placeholder="🔍  Buscar voluntário..." oninput="renderHistorico(this.value)" id="hist-search">
+        </div>
+        <div class="hist-list" id="hist-list"></div>
+      </div>
+      <!-- Aniversários -->
+      <div id="eq-aniversarios" style="display:none">
+        <div class="hist-list" id="bday-list"></div>
+      </div>
     </div>
 
     <!-- ── AVISOS ── -->
     <div class="view" id="view-avisos">
       <div class="pg-hd">
-        <h1>Avisos <em>& Notificações</em></h1>
-        <button class="btn btn-ghost" onclick="markAllRead()">✓ Marcar tudo lido</button>
+        <h1>Avisos <em>& Comunicados</em></h1>
+        <button class="btn btn-ghost" onclick="markAllRead()">✓ Lido</button>
       </div>
-      <div class="notif-list" id="notif-list"></div>
+      <div class="equipe-tabs">
+        <button class="eq-tab active" onclick="setAvisosTab('notifs',this)">🔔 Notificações</button>
+        <button class="eq-tab" onclick="setAvisosTab('mural',this)">📌 Mural</button>
+        <button class="eq-tab" onclick="setAvisosTab('lembretes',this)">⏰ Lembretes</button>
+      </div>
+      <div id="av-notifs">
+        <div class="notif-list" id="notif-list"></div>
+      </div>
+      <div id="av-mural" style="display:none">
+        <div class="pg-hd" style="margin-bottom:.75rem">
+          <span></span>
+          <button class="btn btn-primary edit-only" onclick="openNewMural()">+ Recado</button>
+        </div>
+        <div class="mural-list" id="mural-list"></div>
+      </div>
+      <div id="av-lembretes" style="display:none">
+        <div id="lembretes-list"></div>
+      </div>
     </div>
 
     <!-- ── CONFIG ── -->
@@ -1129,6 +1212,10 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
         <option value="busy">❌ Indisponível no momento</option>
       </select>
     </div>
+    <div class="field">
+      <label>Data de aniversário <span style="color:var(--text3);font-weight:400">(opcional)</span></label>
+      <input type="date" id="nvol-birthday">
+    </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-vol')">Cancelar</button>
       <button class="btn btn-primary" onclick="saveVol()">✓ Salvar Voluntário</button>
@@ -1159,6 +1246,41 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
       <button class="btn btn-ghost" onclick="closeModal('modal-confirm')">Cancelar</button>
       <button class="btn btn-danger" id="confirm-ok">Remover</button>
     </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: NOVO RECADO (MURAL) ══ -->
+<div class="overlay" id="modal-mural">
+  <div class="modal">
+    <div class="modal-title">Novo <em>Recado</em></div>
+    <div class="field">
+      <label>Mensagem</label>
+      <textarea id="mural-text" rows="4" placeholder="Digite seu recado para a equipe..."></textarea>
+    </div>
+    <div class="field" style="flex-direction:row;align-items:center;gap:.75rem">
+      <input type="checkbox" id="mural-pinned" style="width:18px;height:18px;accent-color:var(--gold)">
+      <label for="mural-pinned" style="margin:0;font-size:.83rem">📌 Fixar no topo</label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-mural')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveMural()">📌 Publicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: CONFIRMAÇÃO DE ESCALA ══ -->
+<div class="overlay" id="modal-escala-confirm">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <div style="font-size:2.5rem;margin-bottom:.75rem" id="esc-icon">📅</div>
+    <div class="modal-title" style="justify-content:center" id="esc-title">Confirmar Presença</div>
+    <p style="font-size:.83rem;color:var(--text2);margin:.75rem 0 .25rem" id="esc-event-info"></p>
+    <p style="font-size:.83rem;color:var(--gold);font-weight:700;margin-bottom:1.25rem" id="esc-role-info"></p>
+    <p style="font-size:.78rem;color:var(--text3);margin-bottom:1rem">Você pode confirmar ou recusar sua participação neste evento.</p>
+    <div class="confirm-choice">
+      <button class="btn-confirm-yes" onclick="submitEscalaConfirm('confirmed')">✅ Confirmar</button>
+      <button class="btn-confirm-no"  onclick="submitEscalaConfirm('declined')">❌ Recusar</button>
+    </div>
+    <button class="btn btn-ghost" style="width:100%;margin-top:.6rem;justify-content:center" onclick="closeModal('modal-escala-confirm')">Agora não</button>
   </div>
 </div>
 
@@ -1196,6 +1318,7 @@ const COL_EVENTS   = 'events';
 const COL_VOLS     = 'volunteers';
 const COL_NOTIFS   = 'notifications';
 const COL_USERS    = 'users';
+const COL_MURAL    = 'mural';
 
 // Current user state
 let currentUser = null;   // Firebase user object
@@ -1239,6 +1362,7 @@ let state = {
   events: [],
   volunteers: [],
   notifications: [],
+  mural: [],
 };
 
 // ─── Loading overlay ───
@@ -1319,6 +1443,17 @@ function startListeners() {
     state.notifications.sort((a,b) => (b.ts||0) - (a.ts||0));
     if (currentView === 'avisos') renderNotifs();
     updateBadge();
+  });
+
+  // Mural
+  onSnapshot(collection(db, COL_MURAL), snap => {
+    state.mural = snap.docs.map(d => ({ fbId: d.id, ...d.data() }));
+    state.mural.sort((a,b) => {
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      return (b.ts||0) - (a.ts||0);
+    });
+    if (currentView === 'avisos') renderMural();
   });
 }
 
@@ -1599,25 +1734,57 @@ function renderVols(search='') {
     grid.innerHTML='<div class="empty-state"><div class="ei">👥</div><p>Nenhum voluntário encontrado.</p></div>';
     return;
   }
-  grid.innerHTML=list.map((v,i)=>{
+  grid.innerHTML=list.map((v)=>{
     const initials=v.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
     const color=AVG_COLORS[state.volunteers.indexOf(v)%AVG_COLORS.length];
     const aCls=v.avail==='ok'?'a-ok':v.avail==='partial'?'a-part':'a-busy';
     const aTxt=v.avail==='ok'?'Disponível':v.avail==='partial'?'Disponibilidade parcial':'Indisponível';
-    const rolesHTML=v.roles.map(r=>{
+    const rolesHTML=(v.roles||[]).map(r=>{
       const m=ROLE_META[r]||{};
       return `<div class="rc ${m.cls||''} filled" style="font-size:.65rem">${m.icon||''} ${r}</div>`;
     }).join('');
     const timesThisMonth=state.events.filter(e=>e.date.startsWith(`${curYear}-${String(curMonth+1).padStart(2,'0')}`))
-      .filter(e=>Object.values(e.assigned).includes(v.fbId)).length;
+      .filter(e=>Object.values(e.assigned||{}).includes(v.fbId)).length;
+    // Photo: use Google photo if linked user found, else initials
+    const linkedUser = v.linkedUid ? currentUser : null;
+    const photoUrl = v.photoURL || null;
+    const avatarHtml = photoUrl
+      ? `<div class="vol-avatar" style="border-color:${color}55"><img src="${photoUrl}" alt="${v.name}"></div>`
+      : `<div class="vol-avatar" style="background:${color}22;color:${color};border-color:${color}55">${initials}</div>`;
+    // Birthday
+    let bdayHtml='';
+    if(v.birthday){
+      const bd=new Date(v.birthday+'T12:00');
+      const today2=new Date(); const thisYear=today2.getFullYear();
+      const nextBday=new Date(thisYear, bd.getMonth(), bd.getDate());
+      if(nextBday < today2) nextBday.setFullYear(thisYear+1);
+      const daysUntil=Math.ceil((nextBday-today2)/(1000*60*60*24));
+      const bdStr=`${bd.getDate()}/${bd.getMonth()+1}`;
+      bdayHtml=`<div class="vol-birthday">🎂 ${bdStr} ${daysUntil===0?'<span>🎉 Hoje!</span>':daysUntil<=7?`<span>em ${daysUntil} dias</span>`:''}</div>`;
+    }
+    // Confirmation status for next event
+    const nextEv=state.events.filter(e=>Object.values(e.assigned||{}).includes(v.fbId)&&e.date>=todayStr)
+      .sort((a,b)=>a.date.localeCompare(b.date))[0];
+    let confirmHtml='';
+    if(nextEv){
+      const status=(nextEv.confirmations||{})[v.fbId];
+      const statusMap={confirmed:'cb-confirmed',declined:'cb-declined',undefined:'cb-pending'};
+      const labelMap={confirmed:'✅ Confirmado',declined:'❌ Recusou',undefined:'⏳ Pendente'};
+      confirmHtml=`<div class="vol-confirm-status">
+        <span class="confirm-badge ${statusMap[status]||'cb-pending'}">${labelMap[status]||'⏳ Pendente'}</span>
+        ${!status?`<button class="confirm-badge cb-pending" style="cursor:pointer;border:none" onclick="openEscalaConfirm('${v.fbId}')">Confirmar escala</button>`:''}
+      </div>`;
+    }
     return `<div class="vol-card">
       <div class="vol-top">
-        <div class="vol-avatar" style="background:${color}22;color:${color};border-color:${color}55">${initials}</div>
+        ${avatarHtml}
         <div>
           <div class="vol-name">${v.name}</div>
-          <div class="vol-srv">${v.services} serviços · ${timesThisMonth} este mês</div>
+          <div class="vol-srv">${v.services||0} serviços · ${timesThisMonth} este mês</div>
+          ${bdayHtml}
         </div>
       </div>
+      ${confirmHtml}
       <div class="vol-roles-wrap">${rolesHTML}</div>
       <div class="vol-avail"><div class="avail-dot ${aCls}"></div>${aTxt}</div>
       <div class="vol-phone">📱 ${v.phone||'—'}</div>
@@ -1631,6 +1798,221 @@ function renderVols(search='') {
 }
 
 function filterVols(q){ renderVols(q); }
+
+// ════════════════════════════════════════════
+// EQUIPE TABS
+// ════════════════════════════════════════════
+let equipeTab = 'membros';
+function setEquipeTab(tab, btn) {
+  equipeTab = tab;
+  document.querySelectorAll('.equipe-tabs .eq-tab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('eq-membros').style.display     = tab==='membros'     ? '' : 'none';
+  document.getElementById('eq-historico').style.display   = tab==='historico'   ? '' : 'none';
+  document.getElementById('eq-aniversarios').style.display= tab==='aniversarios'? '' : 'none';
+  if(tab==='historico')    renderHistorico();
+  if(tab==='aniversarios') renderAniversarios();
+}
+
+// ── HISTÓRICO ──
+function renderHistorico(search='') {
+  const list = document.getElementById('hist-list');
+  let vols = [...state.volunteers];
+  if(search) vols = vols.filter(v=>v.name.toLowerCase().includes(search.toLowerCase()));
+  if(!vols.length){ list.innerHTML='<div class="empty-state"><div class="ei">📊</div><p>Nenhum voluntário.</p></div>'; return; }
+  list.innerHTML = vols.map(v=>{
+    const evs = state.events.filter(e=>Object.values(e.assigned||{}).includes(v.fbId))
+      .sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10);
+    const total = state.events.filter(e=>Object.values(e.assigned||{}).includes(v.fbId)).length;
+    const color = AVG_COLORS[state.volunteers.indexOf(v)%AVG_COLORS.length];
+    const initials = v.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+    return `<div class="hist-row" style="flex-direction:column;align-items:flex-start;gap:.6rem">
+      <div style="display:flex;align-items:center;gap:.65rem;width:100%">
+        <div class="vol-avatar" style="width:34px;height:34px;background:${color}22;color:${color};border-color:${color}55;flex-shrink:0">${v.photoURL?`<img src="${v.photoURL}">`:initials}</div>
+        <div style="flex:1"><div class="hist-ev-name">${v.name}</div><div class="hist-ev-date">${total} evento${total!==1?'s':''} no total</div></div>
+      </div>
+      ${evs.length ? `<div style="display:flex;flex-wrap:wrap;gap:.35rem">${evs.map(e=>{
+        const dt=new Date(e.date+'T12:00');
+        const role=Object.entries(e.assigned||{}).find(([r,id])=>id===v.fbId)?.[0]||'';
+        return `<span class="hist-role-chip">${dt.getDate()}/${dt.getMonth()+1} · ${role||e.name}</span>`;
+      }).join('')}</div>` : '<div class="hist-ev-date">Nenhum evento ainda.</div>'}
+    </div>`;
+  }).join('');
+}
+
+// ── ANIVERSÁRIOS ──
+function renderAniversarios() {
+  const list = document.getElementById('bday-list');
+  const vols = state.volunteers.filter(v=>v.birthday).map(v=>{
+    const bd = new Date(v.birthday+'T12:00');
+    const today2 = new Date(); const ty = today2.getFullYear();
+    const next = new Date(ty, bd.getMonth(), bd.getDate());
+    if(next < today2) next.setFullYear(ty+1);
+    const days = Math.ceil((next-today2)/(1000*60*60*24));
+    return {...v, _bd:bd, _days:days};
+  }).sort((a,b)=>a._days-b._days);
+  if(!vols.length){ list.innerHTML='<div class="empty-state"><div class="ei">🎂</div><p>Nenhum aniversário cadastrado.</p></div>'; return; }
+  list.innerHTML = vols.map(v=>{
+    const color = AVG_COLORS[state.volunteers.indexOf(v)%AVG_COLORS.length];
+    const initials = v.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+    const bdStr = `${v._bd.getDate()}/${v._bd.getMonth()+1}`;
+    const label = v._days===0?'🎉 Hoje!':v._days===1?'Amanhã':`em ${v._days} dias`;
+    return `<div class="hist-row">
+      <div class="vol-avatar" style="width:36px;height:36px;background:${color}22;color:${color};border-color:${color}55;flex-shrink:0">${v.photoURL?`<img src="${v.photoURL}">`:initials}</div>
+      <div style="flex:1"><div class="hist-ev-name">${v.name}</div><div class="hist-ev-date">🎂 ${bdStr}</div></div>
+      <span class="hist-role-chip" style="${v._days===0?'background:rgba(249,168,212,.15);border-color:rgba(249,168,212,.4);color:#f9a8d4':''}">${label}</span>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════
+// MURAL DE RECADOS
+// ════════════════════════════════════════════
+function openNewMural() {
+  if(!canEdit()){ showLoginScreen(); return; }
+  document.getElementById('mural-text').value='';
+  document.getElementById('mural-pinned').checked=false;
+  document.getElementById('modal-mural').classList.add('open');
+}
+
+async function saveMural() {
+  if(!canEdit()) return;
+  const text = document.getElementById('mural-text').value.trim();
+  if(!text){ toast('Digite uma mensagem!','warn'); return; }
+  const pinned = document.getElementById('mural-pinned').checked;
+  const author = currentUser?.displayName || currentUser?.email?.split('@')[0] || 'Admin';
+  const photoURL = currentUser?.photoURL || null;
+  await addDoc(collection(db, COL_MURAL), { text, pinned, author, photoURL, ts: Date.now(), uid: currentUser?.uid||'' });
+  closeModal('modal-mural');
+  toast('Recado publicado! 📌');
+}
+
+async function deleteMural(fbId) {
+  await deleteDoc(doc(db, COL_MURAL, fbId));
+  toast('Recado removido.','warn');
+}
+
+function renderMural() {
+  const list = document.getElementById('mural-list');
+  if(!state.mural.length){ list.innerHTML='<div class="empty-state"><div class="ei">📌</div><p>Nenhum recado publicado.</p></div>'; return; }
+  const timeAgo = ts => { if(!ts) return ''; const d=Date.now()-ts; if(d<60000) return 'Agora'; if(d<3600000) return `Há ${Math.floor(d/60000)}min`; if(d<86400000) return `Há ${Math.floor(d/3600000)}h`; return `Há ${Math.floor(d/86400000)}d`; };
+  list.innerHTML = state.mural.map(m=>`
+    <div class="mural-card ${m.pinned?'pinned':''}">
+      ${m.pinned?'<div class="mural-pin">📌</div>':''}
+      <div class="mural-author">
+        <div class="mural-avatar">${m.photoURL?`<img src="${m.photoURL}" alt="">`:m.author?.[0]?.toUpperCase()||'?'}</div>
+        <div><div class="mural-author-name">${m.author||'Admin'}</div><div class="mural-time">${timeAgo(m.ts)}</div></div>
+      </div>
+      <div class="mural-text">${m.text.replace(/\n/g,'<br>')}</div>
+      ${canEdit()?`<div class="mural-actions"><button class="btn btn-ghost btn-sm edit-only" onclick="deleteMural('${m.fbId}')">🗑️ Remover</button></div>`:''}
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════
+// AVISOS TABS
+// ════════════════════════════════════════════
+function setAvisosTab(tab, btn) {
+  document.querySelectorAll('#view-avisos .equipe-tabs .eq-tab').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.getElementById('av-notifs').style.display    = tab==='notifs'    ? '' : 'none';
+  document.getElementById('av-mural').style.display     = tab==='mural'     ? '' : 'none';
+  document.getElementById('av-lembretes').style.display = tab==='lembretes' ? '' : 'none';
+  if(tab==='mural')     renderMural();
+  if(tab==='lembretes') renderLembretes();
+}
+
+// ════════════════════════════════════════════
+// LEMBRETES — eventos de amanhã com WhatsApp
+// ════════════════════════════════════════════
+function renderLembretes() {
+  const el = document.getElementById('lembretes-list');
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1);
+  const tomorrowStr = fmtDate(tomorrow);
+  const upcomingEvs = state.events
+    .filter(e => e.date >= todayStr)
+    .sort((a,b)=>a.date.localeCompare(b.date))
+    .slice(0,10);
+  if(!upcomingEvs.length){ el.innerHTML='<div class="empty-state"><div class="ei">⏰</div><p>Nenhum evento próximo.</p></div>'; return; }
+  el.innerHTML = upcomingEvs.map(ev=>{
+    const dt = new Date(ev.date+'T12:00');
+    const isTomorrow = ev.date===tomorrowStr;
+    const isToday = ev.date===todayStr;
+    const label = isToday?'Hoje':isTomorrow?'Amanhã':`${dt.getDate()}/${dt.getMonth()+1}`;
+    const assignedVols = Object.entries(ev.assigned||{}).map(([role,fbId])=>{
+      const v = state.volunteers.find(v=>v.fbId===fbId);
+      return v ? {v,role} : null;
+    }).filter(Boolean);
+    const volsHtml = assignedVols.map(({v,role})=>`<span class="hist-role-chip">${v.name} (${role})</span>`).join('');
+    return `<div class="reminder-banner">
+      <div class="rb-icon">${isToday||isTomorrow?'🔔':'📅'}</div>
+      <div class="rb-text">
+        <strong>${ev.name} — ${label} às ${ev.time}</strong>
+        ${assignedVols.length ? `<div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.35rem">${volsHtml}</div>` : '<span style="color:var(--live)">Sem equipe escalada!</span>'}
+      </div>
+      ${assignedVols.length?`<button class="btn btn-wa btn-sm" onclick="sendWAAll('${ev.fbId||ev.id}')">📲 Notificar</button>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════
+// WHATSAPP EM MASSA — notificar toda equipe de um evento
+// ════════════════════════════════════════════
+function sendWAAll(evId) {
+  const ev = state.events.find(e=>e.fbId===evId||e.id===evId);
+  if(!ev) return;
+  const dt = new Date(ev.date+'T12:00');
+  const dateStr = `${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()}`;
+  const assigned = Object.entries(ev.assigned||{});
+  if(!assigned.length){ toast('Nenhum voluntário escalado!','warn'); return; }
+  let sent = 0;
+  assigned.forEach(([role, fbId])=>{
+    const v = state.volunteers.find(v=>v.fbId===fbId);
+    if(!v||!v.phone) return;
+    const n = v.phone.replace(/\D/g,'');
+    const msg = `Olá ${v.name.split(' ')[0]}! 🙏\n\n*${ev.name}*\n📆 ${dateStr} às ${ev.time}\n🎬 Sua função: *${role}*\n\nPor favor confirme sua presença!\n✝ ${state.churchName}`;
+    setTimeout(()=>window.open(`https://wa.me/55${n}?text=${encodeURIComponent(msg)}`,'_blank'), sent*600);
+    sent++;
+  });
+  toast(`Abrindo WhatsApp para ${sent} voluntário${sent!==1?'s':''}!`);
+}
+
+// ════════════════════════════════════════════
+// CONFIRMAÇÃO DE ESCALA PELO VOLUNTÁRIO
+// ════════════════════════════════════════════
+let escalaConfirmData = null;
+function openEscalaConfirm(volFbId) {
+  const v = state.volunteers.find(v=>v.fbId===volFbId);
+  if(!v) return;
+  const nextEv = state.events.filter(e=>Object.values(e.assigned||{}).includes(volFbId)&&e.date>=todayStr)
+    .sort((a,b)=>a.date.localeCompare(b.date))[0];
+  if(!nextEv){ toast('Nenhum evento próximo escalado.'); return; }
+  const dt = new Date(nextEv.date+'T12:00');
+  const role = Object.entries(nextEv.assigned||{}).find(([r,id])=>id===volFbId)?.[0]||'';
+  escalaConfirmData = { evFbId: nextEv.fbId, volFbId };
+  document.getElementById('esc-title').textContent = `Confirmar Presença`;
+  document.getElementById('esc-event-info').textContent = `${nextEv.name} — ${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()} às ${nextEv.time}`;
+  document.getElementById('esc-role-info').textContent = `Sua função: ${role}`;
+  document.getElementById('modal-escala-confirm').classList.add('open');
+}
+
+async function submitEscalaConfirm(status) {
+  if(!escalaConfirmData) return;
+  const {evFbId, volFbId} = escalaConfirmData;
+  const ev = state.events.find(e=>e.fbId===evFbId);
+  if(!ev) return;
+  const confirmations = {...(ev.confirmations||{}), [volFbId]: status};
+  await fb_updateEvent(evFbId, { confirmations });
+  closeModal('modal-escala-confirm');
+  const v = state.volunteers.find(v=>v.fbId===volFbId);
+  if(status==='confirmed'){
+    toast(`✅ Presença confirmada! Deus abençoe!`);
+    pushNotif('✅','Presença confirmada',`${v?.name||'Voluntário'} confirmou presença em "${ev.name}".`);
+  } else {
+    toast(`Recusa registrada. Obrigado por avisar.`,'warn');
+    pushNotif('❌','Recusa de escala',`${v?.name||'Voluntário'} não poderá estar em "${ev.name}".`);
+  }
+  escalaConfirmData = null;
+}
 
 function sendWA(id){
   const v=state.volunteers.find(v=>v.fbId===id);
@@ -1804,6 +2186,15 @@ function openNewVol(){
   document.getElementById('modal-vol').classList.add('open');
 }
 
+function openNewVol(){
+  document.getElementById('nvol-name').value='';
+  document.getElementById('nvol-phone').value='';
+  document.getElementById('nvol-avail').value='ok';
+  document.getElementById('nvol-birthday').value='';
+  clearRolePicker('nvol-roles');
+  document.getElementById('modal-vol').classList.add('open');
+}
+
 let editingVolId=null;
 function openEditVol(fbId){
   const v=state.volunteers.find(v=>v.fbId===fbId);
@@ -1812,6 +2203,7 @@ function openEditVol(fbId){
   document.getElementById('nvol-name').value=v.name;
   document.getElementById('nvol-phone').value=v.phone||'';
   document.getElementById('nvol-avail').value=v.avail;
+  document.getElementById('nvol-birthday').value=v.birthday||'';
   setRolePicker('nvol-roles',v.roles||[]);
   document.querySelector('#modal-vol .modal-title').innerHTML='Editar <em>Voluntário</em>';
   document.getElementById('modal-vol').classList.add('open');
@@ -1822,14 +2214,15 @@ async function saveVol(){
   const name=document.getElementById('nvol-name').value.trim();
   const phone=document.getElementById('nvol-phone').value.trim();
   const avail=document.getElementById('nvol-avail').value;
+  const birthday=document.getElementById('nvol-birthday').value||'';
   if(!name){ toast('Informe o nome!','warn'); return; }
   const roles=getSelectedRoles('nvol-roles');
   if(editingVolId){
-    await fb_updateVol(editingVolId, { name, phone, avail, roles });
+    await fb_updateVol(editingVolId, { name, phone, avail, roles, birthday });
     editingVolId=null;
     toast(`${name} atualizado!`);
   } else {
-    await fb_addVol({ name, phone, roles, avail, services:0 });
+    await fb_addVol({ name, phone, roles, avail, birthday, services:0 });
     toast(`${name} adicionado à equipe!`);
     pushNotif('👤','Novo voluntário',`${name} entrou na equipe de mídia.`);
   }
@@ -2120,6 +2513,13 @@ function initAuth() {
       updateUserChip(user, currentRole);
       applyRoleUI();
       toast(`Olá, ${user.displayName || user.email.split('@')[0]}! 👋`);
+      // Link Google photo to matching volunteer
+      if(user.photoURL) {
+        const matchVol = state.volunteers.find(v=>
+          v.name?.toLowerCase().includes((user.displayName||'').split(' ')[0]?.toLowerCase()) && !v.photoURL
+        );
+        if(matchVol) fb_updateVol(matchVol.fbId, { photoURL: user.photoURL });
+      }
     } else {
       currentUser = null;
       currentRole = null;
@@ -2160,12 +2560,16 @@ Object.assign(window, {
   openAssign, saveAssign,
   setEvFilter, filterVols,
   markRead, markAllRead,
-  confirmDelete, sendWA,
+  confirmDelete, sendWA, sendWAAll,
   loadConfig, saveConfig, exportSchedule,
   toggleRP, pwaTriggerInstall, pwaDismiss,
   // Auth
   switchLoginTab, authSubmit, authGoogle, authSignOut, toggleUserMenu,
   showLoginScreen, hideLoginScreen,
+  // New features
+  setEquipeTab, renderHistorico,
+  setAvisosTab, openNewMural, saveMural, deleteMural,
+  openEscalaConfirm, submitEscalaConfirm,
 });
 
 
