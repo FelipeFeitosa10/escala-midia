@@ -1218,6 +1218,7 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
         <div style="display:flex;gap:.6rem;flex-wrap:wrap">
           <button class="btn btn-ghost" onclick="exportBackup()">⬇️ Exportar Backup JSON</button>
           <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()">⬆️ Importar Backup</button>
+          <button class="btn btn-ghost" style="color:#f87171;border-color:rgba(248,113,113,.4)" onclick="removeDuplicateEvents()">🧹 Remover Duplicatas</button>
           <input type="file" id="import-file" accept=".json" style="display:none" onchange="importBackup(event)">
         </div>
         <div>
@@ -2597,6 +2598,36 @@ async function runAutoGen() {
   logAction('⚡', `Gerou ${created} eventos para ${MONTHS[month]}/${year}`);
 }
 
+// ── Remover duplicatas do banco ──
+async function removeDuplicateEvents() {
+  showLoading('Verificando duplicatas...');
+  const snap = await getDocs(collection(db, COL_EVENTS));
+  const all = snap.docs.map(d=>({fbId:d.id,...d.data()}));
+  const seen = {};
+  const toDelete = [];
+  all.forEach(ev => {
+    const key = `${ev.date}|${ev.type}`;
+    if (seen[key]) {
+      // Keep the one with more assigned, delete the other
+      const existing = seen[key];
+      const existingAssigned = Object.keys(existing.assigned||{}).length;
+      const thisAssigned = Object.keys(ev.assigned||{}).length;
+      if (thisAssigned >= existingAssigned) {
+        toDelete.push(existing.fbId);
+        seen[key] = ev;
+      } else {
+        toDelete.push(ev.fbId);
+      }
+    } else {
+      seen[key] = ev;
+    }
+  });
+  if (!toDelete.length) { hideLoading(); toast('Nenhuma duplicata encontrada! ✅'); return; }
+  for (const fbId of toDelete) await fb_deleteEvent(fbId);
+  hideLoading();
+  toast(`🧹 ${toDelete.length} duplicata${toDelete.length!==1?'s':''} removida${toDelete.length!==1?'s':''}!`);
+}
+
 // ════════════════════════════════════════════
 // SMART ASSIGN — sugere voluntários
 // ════════════════════════════════════════════
@@ -3083,7 +3114,7 @@ Object.assign(window, {
   openEscalaConfirm, submitEscalaConfirm,
   // New features
   toggleTheme, toggleCalView, changeWeek,
-  openAutoGenModal, runAutoGen,
+  openAutoGenModal, runAutoGen, removeDuplicateEvents,
   exportBackup, importBackup, copyPubLink,
   changeUserRole, renderUsers,
 });
