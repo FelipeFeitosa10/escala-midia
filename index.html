@@ -783,6 +783,81 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
 .btn-confirm-yes:hover { background:rgba(74,222,128,.25); }
 .btn-confirm-no  { flex:1; background:rgba(248,113,113,.12); border:1px solid rgba(248,113,113,.35); color:#f87171; border-radius:10px; padding:.65rem; font-family:'Mulish',sans-serif; font-weight:800; font-size:.88rem; cursor:pointer; transition:all .2s; }
 .btn-confirm-no:hover { background:rgba(248,113,113,.22); }
+/* ══ THEME TOGGLE ══ */
+:root.light {
+  --bg:#f4f4f8; --s1:#ffffff; --s2:#f0f0f5; --s3:#e4e4ec;
+  --border:#d0d0de; --border2:#b8b8cc;
+  --text:#1a1a2e; --text2:#4a4a6a; --text3:#8888aa;
+  --gold:#b8860b; --gold-lt:#d4a843; --gold-dk:#8a6010;
+  --gold-gl:rgba(184,134,11,.08); --gold-gl2:rgba(184,134,11,.12);
+}
+.theme-toggle { background:none; border:1px solid var(--border); border-radius:20px; padding:.3rem .7rem; cursor:pointer; font-size:.8rem; color:var(--text2); font-family:'Mulish',sans-serif; transition:all .2s; }
+.theme-toggle:hover { border-color:var(--border2); color:var(--text); }
+
+/* ══ STATS / CHARTS ══ */
+.stats-section { margin-bottom:1.5rem; }
+.stats-section h3 { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:700; margin-bottom:.85rem; }
+.stats-section h3 em { color:var(--gold); font-style:italic; }
+.stats-cards-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:.75rem; margin-bottom:1.25rem; }
+.stat-big { background:var(--s2); border:1px solid var(--border); border-radius:14px; padding:1rem; text-align:center; }
+.stat-big .sb-num { font-size:2rem; font-weight:800; color:var(--gold); font-family:'Cormorant Garamond',serif; }
+.stat-big .sb-lbl { font-size:.72rem; color:var(--text2); margin-top:.2rem; }
+.bar-chart { display:flex; flex-direction:column; gap:.5rem; }
+.bar-row { display:flex; align-items:center; gap:.75rem; }
+.bar-label { width:110px; font-size:.75rem; color:var(--text2); text-align:right; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bar-track { flex:1; background:var(--s3); border-radius:4px; height:8px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:4px; background:var(--gold); transition:width .5s ease; }
+.bar-val { font-size:.72rem; color:var(--text3); width:24px; text-align:right; flex-shrink:0; }
+
+/* ══ WEEKLY VIEW ══ */
+.week-nav { display:flex; align-items:center; gap:.75rem; margin-bottom:1.25rem; }
+.week-label { font-family:'Cormorant Garamond',serif; font-size:1.15rem; font-style:italic; color:var(--gold); flex:1; text-align:center; }
+.week-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:.4rem; }
+.week-col { display:flex; flex-direction:column; gap:.4rem; }
+.week-day-hd { text-align:center; font-size:.7rem; font-weight:800; color:var(--text3); padding:.3rem 0; }
+.week-day-hd.today-col { color:var(--gold); }
+.week-ev { background:var(--s2); border:1px solid var(--border); border-radius:8px; padding:.45rem .5rem; font-size:.68rem; cursor:pointer; transition:all .15s; line-height:1.3; }
+.week-ev:hover { border-color:var(--border2); }
+.week-ev.dom  { background:var(--dom-bg); border-color:var(--dom-bd); color:var(--dom-tx); }
+.week-ev.noite{ background:var(--noite-bg); border-color:var(--noite-bd); color:var(--noite-tx); }
+.week-ev.ter  { background:var(--ter-bg); border-color:var(--ter-bd); color:var(--ter-tx); }
+.week-ev.esp  { background:var(--esp-bg); border-color:var(--esp-bd); color:var(--esp-tx); }
+.week-empty { font-size:.65rem; color:var(--text3); text-align:center; padding:.5rem 0; }
+
+/* ══ USERS PANEL ══ */
+.user-row { display:flex; align-items:center; gap:.85rem; background:var(--s2); border:1px solid var(--border); border-radius:12px; padding:.85rem 1rem; }
+.user-row-avatar { width:38px; height:38px; border-radius:50%; background:var(--gold-gl2); border:1px solid var(--gold-dk); display:flex; align-items:center; justify-content:center; font-size:.85rem; font-weight:800; color:var(--gold); flex-shrink:0; overflow:hidden; }
+.user-row-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.user-row-info { flex:1; min-width:0; }
+.user-row-name { font-size:.88rem; font-weight:700; }
+.user-row-email { font-size:.72rem; color:var(--text2); }
+.role-select { background:var(--s3); border:1px solid var(--border2); border-radius:8px; padding:.3rem .6rem; font-size:.75rem; color:var(--text); font-family:'Mulish',sans-serif; cursor:pointer; }
+
+/* ══ SMART SCHEDULE ══ */
+.smart-preview { display:flex; flex-direction:column; gap:.5rem; max-height:300px; overflow-y:auto; margin:.75rem 0; }
+.smart-ev-row { background:var(--s2); border:1px solid var(--border); border-radius:10px; padding:.65rem .85rem; }
+.smart-ev-date { font-size:.72rem; color:var(--text3); margin-bottom:.2rem; }
+.smart-ev-name { font-size:.82rem; font-weight:700; margin-bottom:.3rem; }
+.smart-role-row { display:flex; align-items:center; gap:.5rem; font-size:.72rem; color:var(--text2); }
+.smart-role-name { width:100px; flex-shrink:0; }
+.smart-vol-chip { background:var(--gold-gl); border:1px solid var(--gold-dk); color:var(--gold); border-radius:6px; padding:.1rem .4rem; font-size:.68rem; }
+.smart-conflict { background:rgba(248,113,113,.12); border-color:rgba(248,113,113,.35); color:#f87171; }
+
+/* ══ CONFLICT ALERT ══ */
+.conflict-alert { background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.3); border-radius:10px; padding:.65rem .9rem; font-size:.78rem; color:#f87171; display:flex; align-items:flex-start; gap:.6rem; margin-bottom:.5rem; }
+.conflict-alert .ca-icon { flex-shrink:0; font-size:1rem; }
+
+/* ══ LOG ══ */
+.log-row { display:flex; align-items:flex-start; gap:.75rem; padding:.65rem 0; border-bottom:1px solid var(--border); }
+.log-row:last-child { border-bottom:none; }
+.log-icon { width:28px; height:28px; border-radius:50%; background:var(--s3); display:flex; align-items:center; justify-content:center; font-size:.75rem; flex-shrink:0; }
+.log-text { flex:1; font-size:.78rem; color:var(--text2); line-height:1.5; }
+.log-text strong { color:var(--text); }
+.log-time { font-size:.68rem; color:var(--text3); flex-shrink:0; }
+
+/* ══ PUBLIC PAGE PREVIEW ══ */
+.pub-link-box { background:var(--s2); border:1px solid var(--border2); border-radius:10px; padding:.75rem 1rem; display:flex; align-items:center; gap:.75rem; }
+.pub-link-box a { font-size:.78rem; color:var(--gold); flex:1; word-break:break-all; }
 </style>
 </head>
 <body>
@@ -896,10 +971,11 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
     <button class="nav-btn" onclick="goView('eventos',this)">🎬 Eventos</button>
     <button class="nav-btn" onclick="goView('equipe',this)">👥 Equipe</button>
     <button class="nav-btn" onclick="goView('avisos',this)">🔔 Avisos <span class="notif-badge" id="notif-badge">0</span></button>
+    <button class="nav-btn" onclick="goView('stats',this)">📊</button>
+    <button class="nav-btn edit-only" onclick="goView('usuarios',this)" id="nav-usuarios">👤</button>
     <button class="nav-btn" onclick="goView('config',this)" id="nav-config">⚙️</button>
-    <!-- Login button (shown when logged out) -->
+    <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">🌙</button>
     <button class="nav-btn" id="btn-login" onclick="window.showLoginScreen&&window.showLoginScreen()" style="background:var(--gold-gl2);border-color:var(--gold-dk);color:var(--gold);font-weight:700">🔐 Entrar</button>
-    <!-- User chip (shown when logged in) -->
     <div class="user-chip" id="user-chip" onclick="toggleUserMenu()" style="display:none">
       <div class="user-avatar" id="user-avatar">?</div>
       <span class="user-name" id="user-disp-name">—</span>
@@ -970,24 +1046,40 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
         <h1>Escala de <em id="cal-em-title">Março</em></h1>
         <div class="pg-hd-actions">
           <div class="cal-legend">
-            <div class="cl-chip cl-dom">☀️ Domingo Manhã</div>
-            <div class="cl-chip cl-noite">🌃 Domingo Noite</div>
+            <div class="cl-chip cl-dom">☀️ Dom Manhã</div>
+            <div class="cl-chip cl-noite">🌃 Dom Noite</div>
             <div class="cl-chip cl-ter">🌙 Terça</div>
             <div class="cl-chip cl-esp">🎉 Especial</div>
           </div>
           <div style="display:flex;gap:.4rem;align-items:center">
-            <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+            <button class="cal-nav-btn" onclick="changeMonth(-1)" id="cal-prev">‹</button>
             <span class="cal-month-label" id="cal-month-label"></span>
-            <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+            <button class="cal-nav-btn" onclick="changeMonth(1)" id="cal-next">›</button>
           </div>
-          <button class="btn btn-primary edit-only" onclick="openNewEvent()">+ Evento</button>
+          <div style="display:flex;gap:.4rem">
+            <button class="btn btn-ghost btn-sm" id="view-toggle-btn" onclick="toggleCalView()">📆 Semanal</button>
+            <button class="btn btn-primary edit-only" onclick="openNewEvent()">+ Evento</button>
+            <button class="btn btn-ghost btn-sm edit-only" onclick="openAutoGenModal()">⚡ Gerar Mês</button>
+          </div>
         </div>
       </div>
-      <div class="wd-row">
-        <div>Dom</div><div>Seg</div><div>Ter</div>
-        <div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+      <!-- Monthly view -->
+      <div id="cal-monthly">
+        <div class="wd-row">
+          <div>Dom</div><div>Seg</div><div>Ter</div>
+          <div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
       </div>
-      <div class="cal-grid" id="cal-grid"></div>
+      <!-- Weekly view -->
+      <div id="cal-weekly" style="display:none">
+        <div class="week-nav">
+          <button class="cal-nav-btn" onclick="changeWeek(-1)">‹</button>
+          <span class="week-label" id="week-label">Semana</span>
+          <button class="cal-nav-btn" onclick="changeWeek(1)">›</button>
+        </div>
+        <div class="week-grid" id="week-grid"></div>
+      </div>
     </div>
 
     <!-- ── EVENTOS list ── -->
@@ -1121,13 +1213,86 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
           </div>
         </div>
         <button class="btn btn-primary" style="align-self:flex-start" onclick="saveConfig()">💾 Salvar Configurações</button>
+        <hr style="border-color:var(--border);margin:.5rem 0">
+        <h3 style="font-family:'Mulish',sans-serif;font-size:.85rem;font-weight:700;color:var(--text2)">💾 BACKUP & DADOS</h3>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+          <button class="btn btn-ghost" onclick="exportBackup()">⬇️ Exportar Backup JSON</button>
+          <button class="btn btn-ghost" onclick="document.getElementById('import-file').click()">⬆️ Importar Backup</button>
+          <input type="file" id="import-file" accept=".json" style="display:none" onchange="importBackup(event)">
+        </div>
+        <div>
+          <div style="font-size:.78rem;color:var(--text3);margin-bottom:.5rem">🔗 Link público da escala (somente leitura):</div>
+          <div class="pub-link-box">
+            <a id="pub-link" href="#" target="_blank">—</a>
+            <button class="btn btn-ghost btn-sm" onclick="copyPubLink()">📋 Copiar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STATS ── -->
+    <div class="view" id="view-stats">
+      <div class="pg-hd"><h1>Estatísticas <em>& Relatórios</em></h1>
+        <button class="btn btn-ghost" onclick="exportPDF()">📄 Exportar PDF</button>
+      </div>
+      <div id="stats-content"></div>
+    </div>
+
+    <!-- ── USUÁRIOS (admin only) ── -->
+    <div class="view" id="view-usuarios">
+      <div class="pg-hd"><h1>Gerenciar <em>Usuários</em></h1></div>
+      <div style="display:flex;flex-direction:column;gap:.65rem" id="users-list">
+        <div class="empty-state"><div class="ei">👤</div><p>Carregando usuários...</p></div>
       </div>
     </div>
 
   </main>
 </div>
 
-<!-- ══ MODAL: NOVO EVENTO ══ -->
+<!-- ══ MODAL: GERAR MÊS AUTOMATICAMENTE ══ -->
+<div class="overlay" id="modal-autogen">
+  <div class="modal">
+    <div class="modal-title">⚡ Gerar <em>Mês Automático</em></div>
+    <p style="font-size:.82rem;color:var(--text2);margin-bottom:1rem">Cria automaticamente todos os eventos do mês selecionado com base nos padrões configurados.</p>
+    <div class="form-row">
+      <div class="field">
+        <label>Mês</label>
+        <select id="ag-month">
+          <option value="0">Janeiro</option><option value="1">Fevereiro</option>
+          <option value="2">Março</option><option value="3">Abril</option>
+          <option value="4">Maio</option><option value="5">Junho</option>
+          <option value="6">Julho</option><option value="7">Agosto</option>
+          <option value="8">Setembro</option><option value="9">Outubro</option>
+          <option value="10">Novembro</option><option value="11">Dezembro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Ano</label>
+        <input type="number" id="ag-year" value="2026" min="2024" max="2030">
+      </div>
+    </div>
+    <div class="field">
+      <label>Tipos de evento a gerar</label>
+      <div style="display:flex;flex-direction:column;gap:.4rem;margin-top:.3rem">
+        <label style="display:flex;align-items:center;gap:.6rem;font-size:.83rem;font-weight:400"><input type="checkbox" id="ag-dom" checked style="accent-color:var(--gold)"> ☀️ Culto de Domingo (Manhã)</label>
+        <label style="display:flex;align-items:center;gap:.6rem;font-size:.83rem;font-weight:400"><input type="checkbox" id="ag-noite" checked style="accent-color:var(--gold)"> 🌃 Culto de Domingo (Noite)</label>
+        <label style="display:flex;align-items:center;gap:.6rem;font-size:.83rem;font-weight:400"><input type="checkbox" id="ag-ter" checked style="accent-color:var(--gold)"> 🌙 Culto de Terça</label>
+      </div>
+    </div>
+    <div class="field" style="flex-direction:row;align-items:center;gap:.75rem">
+      <input type="checkbox" id="ag-smart" style="width:18px;height:18px;accent-color:var(--gold)">
+      <label for="ag-smart" style="margin:0;font-size:.83rem">🧠 Escala inteligente (sugerir voluntários automaticamente)</label>
+    </div>
+    <div class="field" style="flex-direction:row;align-items:center;gap:.75rem">
+      <input type="checkbox" id="ag-skip-existing" checked style="width:18px;height:18px;accent-color:var(--gold)">
+      <label for="ag-skip-existing" style="margin:0;font-size:.83rem">Pular datas que já têm eventos</label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-autogen')">Cancelar</button>
+      <button class="btn btn-primary" onclick="runAutoGen()">⚡ Gerar Eventos</button>
+    </div>
+  </div>
+</div>
 <div class="overlay" id="modal-event">
   <div class="modal">
     <div class="modal-title">Novo <em>Evento</em></div>
@@ -1553,14 +1718,17 @@ let volSearch = '';
 function goView(v, btn) {
   currentView = v;
   document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
-  document.getElementById('view-'+v).classList.add('active');
+  const viewEl = document.getElementById('view-'+v);
+  if(viewEl) viewEl.classList.add('active');
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
+  if(btn) btn.classList.add('active');
   if (v==='escala')   renderCalendar();
   if (v==='eventos')  renderEvents();
   if (v==='equipe')   renderVols();
   if (v==='avisos')   renderNotifs();
-  if (v==='config')   loadConfig();
+  if (v==='config')   { loadConfig(); updatePubLink(); }
+  if (v==='stats')    renderStats();
+  if (v==='usuarios') { if(!isAdmin()){ toast('Acesso apenas para Admin!','warn'); return; } renderUsers(); }
 }
 
 // ════════════════════════════════════════════
@@ -2334,8 +2502,358 @@ function exportSchedule(){
 }
 
 // ════════════════════════════════════════════
-// AUTH — ROLES & PERMISSIONS
+// THEME TOGGLE
 // ════════════════════════════════════════════
+let isDark = true;
+function toggleTheme() {
+  isDark = !isDark;
+  document.documentElement.classList.toggle('light', !isDark);
+  document.getElementById('theme-btn').textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+// Apply saved theme
+(function(){ const t=localStorage.getItem('theme'); if(t==='light'){ isDark=false; document.documentElement.classList.add('light'); document.getElementById('theme-btn') && (document.getElementById('theme-btn').textContent='☀️'); }})();
+
+// ════════════════════════════════════════════
+// WEEKLY CALENDAR VIEW
+// ════════════════════════════════════════════
+let calMode = 'monthly'; // 'monthly' | 'weekly'
+let weekOffset = 0; // weeks from today
+
+function toggleCalView() {
+  calMode = calMode === 'monthly' ? 'weekly' : 'monthly';
+  document.getElementById('cal-monthly').style.display = calMode==='monthly' ? '' : 'none';
+  document.getElementById('cal-weekly').style.display  = calMode==='weekly'  ? '' : 'none';
+  document.getElementById('view-toggle-btn').textContent = calMode==='monthly' ? '📆 Semanal' : '📅 Mensal';
+  document.getElementById('cal-prev').style.display = calMode==='monthly' ? '' : 'none';
+  document.getElementById('cal-next').style.display = calMode==='monthly' ? '' : 'none';
+  if (calMode==='weekly') renderWeekly();
+}
+
+function changeWeek(dir) { weekOffset += dir; renderWeekly(); }
+
+function renderWeekly() {
+  const base = new Date(today); base.setDate(base.getDate() - base.getDay() + weekOffset*7);
+  const days = Array.from({length:7}, (_,i) => { const d=new Date(base); d.setDate(base.getDate()+i); return d; });
+  document.getElementById('week-label').textContent =
+    `${days[0].getDate()}/${days[0].getMonth()+1} – ${days[6].getDate()}/${days[6].getMonth()+1}/${days[6].getFullYear()}`;
+  const DAYS_SHORT = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  document.getElementById('week-grid').innerHTML = days.map((d,i) => {
+    const ds = fmtDate(d);
+    const isToday = ds === todayStr;
+    const evs = state.events.filter(e=>e.date===ds).sort((a,b)=>a.time.localeCompare(b.time));
+    const chipCls = ev => ev.type==='domingo'?'dom':ev.type==='noite'?'noite':ev.type==='especial'?'esp':'ter';
+    return `<div class="week-col">
+      <div class="week-day-hd ${isToday?'today-col':''}">${DAYS_SHORT[i]}<br><span style="font-size:.9rem;font-weight:800">${d.getDate()}</span></div>
+      ${evs.length ? evs.map(ev=>`<div class="week-ev ${chipCls(ev)}" onclick="openAssign('${ev.fbId}')">${ev.time}<br><strong>${ev.name}</strong></div>`).join('') : `<div class="week-empty">—</div>`}
+      <div class="week-empty" style="cursor:pointer;color:var(--border2)" onclick="openNewEventDate('${ds}')">+</div>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════
+// AUTO-GENERATE MONTH
+// ════════════════════════════════════════════
+function openAutoGenModal() {
+  if(!canEdit()){ showLoginScreen(); return; }
+  document.getElementById('ag-month').value = curMonth;
+  document.getElementById('ag-year').value  = curYear;
+  document.getElementById('modal-autogen').classList.add('open');
+}
+
+async function runAutoGen() {
+  const month  = parseInt(document.getElementById('ag-month').value);
+  const year   = parseInt(document.getElementById('ag-year').value);
+  const genDom   = document.getElementById('ag-dom').checked;
+  const genNoite = document.getElementById('ag-noite').checked;
+  const genTer   = document.getElementById('ag-ter').checked;
+  const smart    = document.getElementById('ag-smart').checked;
+  const skipEx   = document.getElementById('ag-skip-existing').checked;
+  const days     = new Date(year, month+1, 0).getDate();
+  let created    = 0;
+  showLoading('Gerando eventos...');
+  for (let d = 1; d <= days; d++) {
+    const dt  = new Date(year, month, d);
+    const dow = dt.getDay();
+    const ds  = fmtDate(dt);
+    const existing = state.events.filter(e=>e.date===ds);
+    const toCreate = [];
+    if (dow===0 && genDom  && (!skipEx || !existing.find(e=>e.type==='domingo')))
+      toCreate.push({ name:'Culto de Domingo', date:ds, time:state.defaultTimeDom, type:'domingo', roles:[...state.defaultRolesDom], assigned:{}, notes:'' });
+    if (dow===0 && genNoite && (!skipEx || !existing.find(e=>e.type==='noite')))
+      toCreate.push({ name:'Culto de Domingo à Noite', date:ds, time:state.defaultTimeNoite, type:'noite', roles:[...state.defaultRolesNoite], assigned:{}, notes:'' });
+    if (dow===2 && genTer   && (!skipEx || !existing.find(e=>e.type==='terca')))
+      toCreate.push({ name:'Culto de Terça', date:ds, time:state.defaultTimeTer, type:'terca', roles:[...state.defaultRolesTer], assigned:{}, notes:'' });
+    for (const ev of toCreate) {
+      if (smart) ev.assigned = smartAssign(ev.roles, ds);
+      await fb_addEvent(ev);
+      created++;
+    }
+  }
+  hideLoading();
+  closeModal('modal-autogen');
+  toast(`✅ ${created} evento${created!==1?'s':''} gerado${created!==1?'s':''}!`);
+  pushNotif('⚡','Mês gerado',`${created} eventos criados para ${MONTHS[month]} ${year}.`);
+  logAction('⚡', `Gerou ${created} eventos para ${MONTHS[month]}/${year}`);
+}
+
+// ════════════════════════════════════════════
+// SMART ASSIGN — sugere voluntários
+// ════════════════════════════════════════════
+function smartAssign(roles, date) {
+  const assigned = {};
+  const usedToday = new Set();
+  roles.forEach(role => {
+    const candidates = state.volunteers.filter(v =>
+      (v.roles||[]).includes(role) && v.avail !== 'busy' && !usedToday.has(v.fbId)
+    );
+    if (!candidates.length) return;
+    // Score: fewer events this month = higher priority
+    const scored = candidates.map(v => {
+      const evCount = state.events.filter(e =>
+        e.date.startsWith(date.slice(0,7)) && Object.values(e.assigned||{}).includes(v.fbId)
+      ).length;
+      return { v, score: evCount };
+    }).sort((a,b) => a.score - b.score);
+    assigned[role] = scored[0].v.fbId;
+    usedToday.add(scored[0].v.fbId);
+  });
+  return assigned;
+}
+
+// ════════════════════════════════════════════
+// CONFLICT DETECTION
+// ════════════════════════════════════════════
+function detectConflicts() {
+  const conflicts = [];
+  const byDate = {};
+  state.events.forEach(ev => {
+    if (!byDate[ev.date]) byDate[ev.date] = [];
+    byDate[ev.date].push(ev);
+  });
+  Object.values(byDate).forEach(evs => {
+    if (evs.length < 2) return;
+    const allAssigned = {};
+    evs.forEach(ev => {
+      Object.entries(ev.assigned||{}).forEach(([role, volId]) => {
+        if (!allAssigned[volId]) allAssigned[volId] = [];
+        allAssigned[volId].push({ ev: ev.name, role });
+      });
+    });
+    Object.entries(allAssigned).forEach(([volId, entries]) => {
+      if (entries.length > 1) {
+        const v = state.volunteers.find(v=>v.fbId===volId);
+        conflicts.push({ volName: v?.name||'?', date: evs[0].date, entries });
+      }
+    });
+  });
+  return conflicts;
+}
+
+// ════════════════════════════════════════════
+// STATS VIEW
+// ════════════════════════════════════════════
+function renderStats() {
+  const mEvs = state.events.filter(e => e.date.startsWith(`${curYear}-${String(curMonth+1).padStart(2,'0')}`));
+  const total = mEvs.length;
+  const completed = mEvs.filter(e => e.roles.every(r=>(e.assigned||{})[r])).length;
+  const pending   = mEvs.filter(e => e.roles.some(r=>!(e.assigned||{})[r])).length;
+  const totalSlots = mEvs.reduce((s,e)=>s+e.roles.length,0);
+  const filledSlots = mEvs.reduce((s,e)=>s+Object.keys(e.assigned||{}).length,0);
+  const pct = totalSlots ? Math.round(filledSlots/totalSlots*100) : 0;
+
+  // Participation ranking
+  const ranking = state.volunteers.map(v => ({
+    name: v.name,
+    count: state.events.filter(e=>Object.values(e.assigned||{}).includes(v.fbId)).length,
+    month: mEvs.filter(e=>Object.values(e.assigned||{}).includes(v.fbId)).length,
+  })).sort((a,b)=>b.month-a.month);
+
+  // Conflicts
+  const conflicts = detectConflicts();
+  const conflictsHtml = conflicts.length ? `
+    <div class="stats-section">
+      <h3>⚠️ <em>Conflitos de Escala</em></h3>
+      ${conflicts.map(c=>{
+        const dt=new Date(c.date+'T12:00');
+        return `<div class="conflict-alert">
+          <div class="ca-icon">⚠️</div>
+          <div><strong>${c.volName}</strong> está escalado ${c.entries.length}x em ${dt.getDate()}/${dt.getMonth()+1}: ${c.entries.map(e=>`${e.ev} (${e.role})`).join(', ')}</div>
+        </div>`;
+      }).join('')}
+    </div>` : '';
+
+  document.getElementById('stats-content').innerHTML = `
+    <div class="stats-section">
+      <h3>📅 <em>${MONTHS[curMonth]} ${curYear}</em></h3>
+      <div class="stats-cards-row">
+        <div class="stat-big"><div class="sb-num">${total}</div><div class="sb-lbl">Eventos</div></div>
+        <div class="stat-big"><div class="sb-num">${completed}</div><div class="sb-lbl">Completos</div></div>
+        <div class="stat-big"><div class="sb-num">${pending}</div><div class="sb-lbl">Em aberto</div></div>
+        <div class="stat-big"><div class="sb-num">${pct}%</div><div class="sb-lbl">Cobertura</div></div>
+      </div>
+    </div>
+    ${conflictsHtml}
+    <div class="stats-section">
+      <h3>🏆 Ranking de <em>Participação</em></h3>
+      <div class="bar-chart">
+        ${ranking.slice(0,10).map(v=>{
+          const max = ranking[0]?.month||1;
+          return `<div class="bar-row">
+            <div class="bar-label">${v.name.split(' ')[0]}</div>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v.month/max*100)}%"></div></div>
+            <div class="bar-val">${v.month}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div class="stats-section">
+      <h3>📊 <em>Total Geral</em></h3>
+      <div class="bar-chart">
+        ${ranking.slice(0,10).map(v=>{
+          const max = ranking.reduce((m,x)=>Math.max(m,x.count),1);
+          return `<div class="bar-row">
+            <div class="bar-label">${v.name.split(' ')[0]}</div>
+            <div class="bar-track"><div class="bar-fill" style="width:${Math.round(v.count/max*100)}%;background:var(--slides)"></div></div>
+            <div class="bar-val">${v.count}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════════
+// USERS MANAGEMENT (admin only)
+// ════════════════════════════════════════════
+async function renderUsers() {
+  const list = document.getElementById('users-list');
+  list.innerHTML='<div class="empty-state"><div class="ei">⏳</div><p>Carregando...</p></div>';
+  try {
+    const snap = await getDocs(collection(db, COL_USERS));
+    if(snap.empty){ list.innerHTML='<div class="empty-state"><div class="ei">👤</div><p>Nenhum usuário cadastrado.</p></div>'; return; }
+    const users = snap.docs.map(d=>({fbId:d.id,...d.data()}));
+    const roleLabels = { admin:'👑 Admin', lider:'⭐ Líder', equipe:'👤 Equipe' };
+    list.innerHTML = users.map(u=>`
+      <div class="user-row">
+        <div class="user-row-avatar">${u.photo?`<img src="${u.photo}">`:(u.name||'?')[0].toUpperCase()}</div>
+        <div class="user-row-info">
+          <div class="user-row-name">${u.name||'—'}</div>
+          <div class="user-row-email">${u.email||'—'}</div>
+        </div>
+        <select class="role-select" onchange="changeUserRole('${u.fbId}',this.value)">
+          <option value="admin"  ${u.role==='admin' ?'selected':''}>👑 Admin</option>
+          <option value="lider"  ${u.role==='lider' ?'selected':''}>⭐ Líder</option>
+          <option value="equipe" ${u.role==='equipe'?'selected':''}>👤 Equipe</option>
+        </select>
+      </div>`).join('');
+  } catch(e) { list.innerHTML=`<div class="empty-state"><div class="ei">❌</div><p>Erro ao carregar: ${e.message}</p></div>`; }
+}
+
+async function changeUserRole(uid, role) {
+  await updateDoc(doc(db, COL_USERS, uid), { role });
+  toast(`Papel atualizado para ${role}!`);
+  logAction('👤', `Alterou papel de usuário para "${role}"`);
+}
+
+// ════════════════════════════════════════════
+// ACTIVITY LOG
+// ════════════════════════════════════════════
+async function logAction(icon, text) {
+  try {
+    const user = currentUser;
+    await addDoc(collection(db, 'log'), {
+      icon, text,
+      author: user?.displayName || user?.email || 'Sistema',
+      ts: Date.now(),
+    });
+  } catch(e) {}
+}
+
+// ════════════════════════════════════════════
+// BACKUP & RESTORE
+// ════════════════════════════════════════════
+function exportBackup() {
+  const data = {
+    version: 2, exportedAt: new Date().toISOString(),
+    churchName: state.churchName,
+    events: state.events.map(({fbId,...e})=>e),
+    volunteers: state.volunteers.map(({fbId,...v})=>v),
+  };
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  a.download = `backup-escala-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  toast('Backup exportado! 💾');
+}
+
+async function importBackup(e) {
+  const file = e.target.files[0]; if(!file) return;
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if(!data.events || !data.volunteers){ toast('Arquivo inválido!','warn'); return; }
+    if(!confirm(`Importar ${data.events.length} eventos e ${data.volunteers.length} voluntários? Isso NÃO apaga dados existentes.`)) return;
+    showLoading('Importando backup...');
+    for(const v of data.volunteers) await fb_addVol(v);
+    for(const ev of data.events)    await fb_addEvent(ev);
+    hideLoading();
+    toast(`✅ Backup importado com sucesso!`);
+  } catch(err) { hideLoading(); toast('Erro ao importar: '+err.message,'warn'); }
+  e.target.value='';
+}
+
+// ════════════════════════════════════════════
+// PUBLIC PAGE LINK
+// ════════════════════════════════════════════
+function updatePubLink() {
+  const url = window.location.href.split('?')[0];
+  const el  = document.getElementById('pub-link');
+  if(el){ el.textContent=url; el.href=url; }
+}
+function copyPubLink() {
+  const url = window.location.href.split('?')[0];
+  navigator.clipboard?.writeText(url).then(()=>toast('Link copiado! 📋'));
+}
+
+// ════════════════════════════════════════════
+// PDF EXPORT
+// ════════════════════════════════════════════
+function exportPDF() {
+  const mEvs = state.events.filter(e=>{
+    const [y,m]=e.date.split('-').map(Number); return y===curYear&&m===curMonth+1;
+  }).sort((a,b)=>a.date.localeCompare(b.date));
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>
+    body{font-family:Arial,sans-serif;padding:2rem;color:#1a1a2e;max-width:800px;margin:0 auto}
+    h1{font-size:1.6rem;border-bottom:2px solid #d4a843;padding-bottom:.5rem;color:#1a1a2e}
+    h2{font-size:1rem;color:#6b6b8a;margin:1.5rem 0 .5rem}
+    table{width:100%;border-collapse:collapse;margin-bottom:1.5rem}
+    th{background:#d4a843;color:white;padding:.4rem .7rem;text-align:left;font-size:.8rem}
+    td{padding:.35rem .7rem;border-bottom:1px solid #e0e0ee;font-size:.8rem}
+    tr:last-child td{border-bottom:none}
+    .empty{color:#aaa;font-style:italic}
+    @media print{body{padding:0}}
+  </style></head><body>
+  <h1>📅 Escala de Mídia — ${state.churchName}</h1>
+  <p style="color:#888;font-size:.85rem">${MONTHS[curMonth]} ${curYear} · Gerado em ${new Date().toLocaleDateString('pt-BR')}</p>
+  ${mEvs.map(ev=>{
+    const dt=new Date(ev.date+'T12:00');
+    return `<h2>${ev.name} — ${dt.getDate()}/${dt.getMonth()+1}/${dt.getFullYear()} às ${ev.time}</h2>
+    <table><tr>${ev.roles.map(r=>`<th>${r}</th>`).join('')}</tr>
+    <tr>${ev.roles.map(r=>{
+      const v=state.volunteers.find(v=>v.fbId===(ev.assigned||{})[r]);
+      return `<td>${v?v.name:'<span class="empty">Em aberto</span>'}</td>`;
+    }).join('')}</tr></table>`;
+  }).join('')}
+  </body></html>`;
+
+  const win = window.open('','_blank');
+  win.document.write(html);
+  win.document.close();
+  setTimeout(()=>win.print(), 500);
+}
 function canEdit()   { return currentRole === 'admin' || currentRole === 'lider'; }
 function isAdmin()   { return currentRole === 'admin'; }
 
@@ -2554,15 +3072,20 @@ Object.assign(window, {
   setEvFilter, filterVols,
   markRead, markAllRead,
   confirmDelete, sendWA, sendWAAll,
-  loadConfig, saveConfig, exportSchedule,
+  loadConfig, saveConfig, exportSchedule, exportPDF,
   toggleRP, pwaTriggerInstall, pwaDismiss,
   // Auth
   switchLoginTab, authSubmit, authGoogle, authSignOut, toggleUserMenu,
   showLoginScreen, hideLoginScreen,
-  // New features
+  // Equipe features
   setEquipeTab, renderHistorico,
   setAvisosTab, openNewMural, saveMural, deleteMural,
   openEscalaConfirm, submitEscalaConfirm,
+  // New features
+  toggleTheme, toggleCalView, changeWeek,
+  openAutoGenModal, runAutoGen,
+  exportBackup, importBackup, copyPubLink,
+  changeUserRole, renderUsers,
 });
 
 
