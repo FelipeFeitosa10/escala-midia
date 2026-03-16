@@ -1204,12 +1204,12 @@ main { flex: 1; padding: 2rem; overflow-y: auto; }
         <div class="field">
           <label>Funções padrão — Culto de Terça</label>
           <div class="rp-grid" id="cfg-roles-ter">
-            <button class="rp-btn"           data-role="Câmera"              data-cls="cam"    onclick="toggleRP(this)">📷 Câmera</button>
-            <button class="rp-btn"           data-role="Transmissão ao Vivo" data-cls="live"   onclick="toggleRP(this)">📡 Transmissão</button>
+            <button class="rp-btn on-cam"    data-role="Câmera"              data-cls="cam"    onclick="toggleRP(this)">📷 Câmera</button>
+            <button class="rp-btn on-live"   data-role="Transmissão ao Vivo" data-cls="live"   onclick="toggleRP(this)">📡 Transmissão</button>
             <button class="rp-btn on-audio"  data-role="Som/Áudio"           data-cls="audio"  onclick="toggleRP(this)">🎚️ Som/Áudio</button>
             <button class="rp-btn on-slides" data-role="Projeção/Slides"     data-cls="slides" onclick="toggleRP(this)">🖥️ Projeção</button>
-            <button class="rp-btn"           data-role="Fotografia"          data-cls="photo"  onclick="toggleRP(this)">📸 Fotografia</button>
-            <button class="rp-btn"           data-role="Iluminação"          data-cls="light"  onclick="toggleRP(this)">💡 Iluminação</button>
+            <button class="rp-btn on-photo"  data-role="Fotografia"          data-cls="photo"  onclick="toggleRP(this)">📸 Fotografia</button>
+            <button class="rp-btn on-light"  data-role="Iluminação"          data-cls="light"  onclick="toggleRP(this)">💡 Iluminação</button>
           </div>
         </div>
         <button class="btn btn-primary" style="align-self:flex-start" onclick="saveConfig()">💾 Salvar Configurações</button>
@@ -1523,7 +1523,7 @@ let state = {
   defaultTimeTer:   '19:30',
   defaultTimeNoite: '19:00',
   defaultRolesDom:   ['Câmera','Transmissão ao Vivo','Som/Áudio','Projeção/Slides','Iluminação'],
-  defaultRolesTer:   ['Som/Áudio','Projeção/Slides','Câmera'],
+  defaultRolesTer:   ['Câmera','Transmissão ao Vivo','Som/Áudio','Projeção/Slides','Fotografia','Iluminação'],
   defaultRolesNoite: ['Câmera','Transmissão ao Vivo','Som/Áudio','Projeção/Slides','Iluminação'],
   events: [],
   volunteers: [],
